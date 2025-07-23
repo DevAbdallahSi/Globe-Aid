@@ -3,14 +3,13 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const mongoose = require("mongoose");
 const http = require("http");
 const { Server } = require("socket.io");
 
 // Route files
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
-const socketRoutes = require("./routes/socketRoutes");
+// const socketRoutes = require("./routes/socketRoutes");
 const timeBankRoutes = require("./routes/timeBankRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 
@@ -35,17 +34,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log("✅ MongoDB Connected"))
-.catch(err => console.error("❌ MongoDB Connection Error:", err));
+require("./config/mongoose.config");
 
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/sockets", socketRoutes(io)); // Pass io to the route
+// app.use("/api/sockets", socketRoutes(io)); // Pass io to the route
 app.use("/api/timebank", timeBankRoutes);
 app.use("/api/ai", aiRoutes);
 
