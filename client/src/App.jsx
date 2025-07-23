@@ -1,15 +1,16 @@
-import { useState } from 'react'
+import './App.css';
+import { Routes, Route } from 'react-router-dom';
+import AuthComponent from './pages/LoginRegister';
 
-import './App.css'
-import AuthComponent from './pages/LoginRegister'
+const App = () => {
+    return (
+        <div className="container">
+            <Routes>
+                <Route path="/" element={<><AuthComponent /></>} />
+                <Route path="/dashboard" element={<>test</>} />
+            </Routes>
+        </div>
+    );
+};
 
-function App() {
-  return (
-    <>
-      <AuthComponent/>
-
-    </>
-  )
-}
-
-export default App
+export default App;
