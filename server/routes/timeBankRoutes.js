@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const TimeBank = require('../models/TimeBank');
-const User = require('../models/User'); // assuming a User model exists
+const TimeBank = require('../models/TimeBankOffer');
+const User = require('../models/user.model'); // assuming a User model exists
 const authMiddleware = require('../middlewares/auth'); // protect routes
 
 // @route   POST /api/timebank/donate
