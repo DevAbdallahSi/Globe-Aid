@@ -1,66 +1,47 @@
+// const express = require('express');
+// const cors = require('cors')
+// const app = express();
+// require('./config/mongoose.config');
+// app.use(cors())
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// require('dotenv').config()
+// const PORT = process.env.PORT;
+// require ('./routes/player.routes')(app);
+// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
 const express = require('express');
-const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+const connectDB = require('./config/mongoose.config');
 
-const authRoutes = require('./routes/auth');
+// Load environment variables
+dotenv.config();
 
+// Connect to MongoDB
+connectDB();
+
+// Initialize app
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Middleware
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: 'http://localhost:5173', // Frontend origin
     credentials: true
 }));
-
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later.'
-});
-app.use(limiter);
-
-// Auth rate limiting (more restrictive)
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // limit each IP to 5 auth requests per windowMs
-    message: 'Too many authentication attempts, please try again later.'
-});
-
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
-
-require("./config/mongoose.config");
-
+app.use(express.json());
 
 // Routes
-app.use('/api/users', authLimiter, authRoutes);
+app.use('/api/users', require('./routes/userRoutes.route'));
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'OK', message: 'Server is running' });
+// Root Route
+app.get('/', (req, res) => {
+    res.send('API running...');
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({
-        message: 'Something went wrong!',
-        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-    });
-});
-
-// // 404 handler
-// app.use('', (req, res) => {
-//     res.status(404).json({ message: 'Route not found' });
-// });
-
-const PORT = process.env.PORT || 5000;
+// Start server
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`✅ Server running on http://localhost:${PORT}`);
 });
