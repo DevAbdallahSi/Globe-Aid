@@ -190,7 +190,7 @@ const AuthComponent = () => {
                     )}
 
                     {/* Form */}
-                    <div className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         {/* Name Field (Registration only) */}
                         {!isLogin && (
                             <div>
@@ -294,11 +294,9 @@ const AuthComponent = () => {
                                 )}
                             </div>
                         )}
-
                         {/* Submit Button */}
                         <button
-                            type="button"
-                            onClick={handleSubmit}
+                            type="submit"
                             disabled={loading}
                             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -311,7 +309,7 @@ const AuthComponent = () => {
                                 isLogin ? 'Sign In' : 'Create Account'
                             )}
                         </button>
-                    </div>
+                    </form>
 
                     {/* Toggle Link */}
                     <div className="text-center mt-6">
