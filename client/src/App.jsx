@@ -39,8 +39,8 @@ const App = () => {
             />
 
             <Routes>
-                <Route path="/" element={<AuthComponent onLogin={handleLogin} />} />
-                <Route path="/home" element={<HomePage />} />
+                <Route path="/login" element={<AuthComponent onLogin={handleLogin} />} />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/dashboard" element={<UserDashboard />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/timebank" element={<TimeBank />} />
