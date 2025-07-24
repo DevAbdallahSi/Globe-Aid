@@ -310,15 +310,6 @@ const HomePage = () => {
                 </section>
             </main>
 
-            {/* Footer */}
-            <footer className="bg-gray-900 text-white pt-8 sm:pt-12 md:pt-16 pb-4 sm:pb-6 md:pb-8">
-                <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-                    <div className="pt-4 sm:pt-6 md:pt-8 border-t border-gray-800 text-center text-gray-500">
-                        <p className="text-xs sm:text-sm md:text-base">© 2025 GlobeAid. All rights reserved. Built with ❤️ for global citizens.</p>
-                    </div>
-                </div>
-            </footer>
-
             <style jsx global>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
