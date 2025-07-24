@@ -4,6 +4,7 @@ import { Eye, EyeOff, User, Mail, Lock, Globe, AlertCircle, CheckCircle } from '
 const AuthComponent = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
 
@@ -11,6 +12,7 @@ const AuthComponent = () => {
         name: '',
         email: '',
         password: '',
+        confirmPassword: '',
         country: ''
     });
 
@@ -52,6 +54,12 @@ const AuthComponent = () => {
             newErrors.password = 'Password must be at least 6 characters';
         }
 
+        if (!isLogin && !formData.confirmPassword) {
+            newErrors.confirmPassword = 'Confirm Password is required';
+        } else if (!isLogin && formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = 'Passwords do not match';
+        }
+
         if (!isLogin && !formData.country) {
             newErrors.country = 'Country is required';
         }
@@ -85,10 +93,10 @@ const AuthComponent = () => {
         setMessage({ type: '', text: '' });
 
         try {
-            const endpoint = isLogin ? '/api/users/login' : '/api/users/register';
+            const endpoint = isLogin ? 'http://localhost:8000/api/users/login' : 'http://localhost:8000/api/users/register';
             const payload = isLogin
                 ? { email: formData.email, password: formData.password }
-                : formData;
+                : { name: formData.name, email: formData.email, password: formData.password, country: formData.country };
 
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -106,16 +114,14 @@ const AuthComponent = () => {
                     text: isLogin ? 'Login successful!' : 'Registration successful!'
                 });
 
-                // Store token if provided
+                // Store JWT token
                 if (data.token) {
                     localStorage.setItem('token', data.token);
                 }
 
-                // Redirect to dashboard (you can customize this)
                 setTimeout(() => {
                     window.location.href = '/dashboard';
                 }, 1500);
-
             } else {
                 setMessage({
                     type: 'error',
@@ -134,7 +140,7 @@ const AuthComponent = () => {
 
     const toggleMode = () => {
         setIsLogin(!isLogin);
-        setFormData({ name: '', email: '', password: '', country: '' });
+        setFormData({ name: '', email: '', password: '', confirmPassword: '', country: '' });
         setErrors({});
         setMessage({ type: '', text: '' });
     };
@@ -156,8 +162,8 @@ const AuthComponent = () => {
                             type="button"
                             onClick={() => setIsLogin(true)}
                             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${isLogin
-                                    ? 'bg-white text-gray-900 shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900'
+                                ? 'bg-white text-gray-900 shadow-sm'
+                                : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
                             Login
@@ -166,8 +172,8 @@ const AuthComponent = () => {
                             type="button"
                             onClick={() => setIsLogin(false)}
                             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${!isLogin
-                                    ? 'bg-white text-gray-900 shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900'
+                                ? 'bg-white text-gray-900 shadow-sm'
+                                : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
                             Sign Up
@@ -177,8 +183,8 @@ const AuthComponent = () => {
                     {/* Message Display */}
                     {message.text && (
                         <div className={`flex items-center gap-2 p-3 rounded-lg mb-4 ${message.type === 'success'
-                                ? 'bg-green-50 text-green-700 border border-green-200'
-                                : 'bg-red-50 text-red-700 border border-red-200'
+                            ? 'bg-green-50 text-green-700 border border-green-200'
+                            : 'bg-red-50 text-red-700 border border-red-200'
                             }`}>
                             {message.type === 'success' ? (
                                 <CheckCircle className="w-4 h-4" />
@@ -266,6 +272,37 @@ const AuthComponent = () => {
                             )}
                         </div>
 
+                        {/* Confirm Password Field (Registration only) */}
+                        {!isLogin && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Confirm Password
+                                </label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                    <input
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        name="confirmPassword"
+                                        value={formData.confirmPassword}
+                                        onChange={handleInputChange}
+                                        className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                                            }`}
+                                        placeholder="Confirm your password"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    >
+                                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </button>
+                                </div>
+                                {errors.confirmPassword && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
+                                )}
+                            </div>
+                        )}
+
                         {/* Country Field (Registration only) */}
                         {!isLogin && (
                             <div>
@@ -294,6 +331,7 @@ const AuthComponent = () => {
                                 )}
                             </div>
                         )}
+
                         {/* Submit Button */}
                         <button
                             type="submit"
