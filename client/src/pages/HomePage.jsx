@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
 
 const HomePage = () => {
     const [activeTab, setActiveTab] = useState('students');
@@ -116,14 +118,15 @@ const HomePage = () => {
                             </a>
                         </li>
                         <li>
-                            <button
+                            <Link
+                                to="/"
                                 className="bg-gradient-to-r from-indigo-500 to-purple-700 text-white px-3 md:px-4 lg:px-6 py-2 rounded-full flex items-center gap-1 lg:gap-2 hover:-translate-y-0.5 transition-all shadow-lg hover:shadow-xl shadow-indigo-500/30 text-sm lg:text-base"
                                 aria-label="Login or Register"
                             >
                                 <span className="text-xs lg:text-sm">👤</span>
                                 <span className="hidden lg:inline">Login/Register</span>
                                 <span className="lg:hidden">Login</span>
-                            </button>
+                            </Link>
                         </li>
                     </ul>
 
