@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Mail, Lock, Globe, AlertCircle, CheckCircle } from 'lucide-react';
+import image5 from '../assets/images/image5.jpg'; // Make sure this path is correct
 
 const AuthComponent = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -75,7 +76,6 @@ const AuthComponent = () => {
             [name]: value
         }));
 
-        // Clear error when user starts typing
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,
@@ -114,7 +114,6 @@ const AuthComponent = () => {
                     text: isLogin ? 'Login successful!' : 'Registration successful!'
                 });
 
-                // Store JWT token
                 if (data.token) {
                     localStorage.setItem('token', data.token);
                 }
@@ -146,24 +145,29 @@ const AuthComponent = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div
+            className="min-h-screen bg-cover bg-center flex justify-center items-center relative"
+            style={{ backgroundImage: `url(${image5})` }}
+        >
+            {/* Optional overlay for better text visibility */}
+            {/* <div className="absolute inset-0 bg-black opacity-30"></div> */}
+
+            {/* Form container */}
+            <div className="relative w-full max-w-xl p-8 rounded-2xl bg-white/10 backdrop-blur-toggleMode shadow-lg border border-white/40">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 text-center">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 text-center rounded-t-2xl">
                     <div className="text-white text-3xl font-bold mb-2">🌍 GlobeAid</div>
                     <p className="text-blue-100 text-sm">Helping you feel at home anywhere</p>
                 </div>
 
-                {/* Form Container */}
+                {/* Form Content */}
                 <div className="px-8 py-6">
                     {/* Toggle Buttons */}
                     <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
                         <button
                             type="button"
                             onClick={() => setIsLogin(true)}
-                            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${isLogin
-                                ? 'bg-white text-gray-900 shadow-sm'
-                                : 'text-gray-600 hover:text-gray-900'
+                            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${isLogin ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
                             Login
@@ -171,9 +175,7 @@ const AuthComponent = () => {
                         <button
                             type="button"
                             onClick={() => setIsLogin(false)}
-                            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${!isLogin
-                                ? 'bg-white text-gray-900 shadow-sm'
-                                : 'text-gray-600 hover:text-gray-900'
+                            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${!isLogin ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
                                 }`}
                         >
                             Sign Up
@@ -182,10 +184,12 @@ const AuthComponent = () => {
 
                     {/* Message Display */}
                     {message.text && (
-                        <div className={`flex items-center gap-2 p-3 rounded-lg mb-4 ${message.type === 'success'
-                            ? 'bg-green-50 text-green-700 border border-green-200'
-                            : 'bg-red-50 text-red-700 border border-red-200'
-                            }`}>
+                        <div
+                            className={`flex items-center gap-2 p-3 rounded-lg mb-4 ${message.type === 'success'
+                                ? 'bg-green-50 text-green-700 border border-green-200'
+                                : 'bg-red-50 text-red-700 border border-red-200'
+                                }`}
+                        >
                             {message.type === 'success' ? (
                                 <CheckCircle className="w-4 h-4" />
                             ) : (
@@ -196,143 +200,167 @@ const AuthComponent = () => {
                     )}
 
                     {/* Form */}
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Name Field (Registration only) */}
-                        {!isLogin && (
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Full Name
-                                </label>
-                                <div className="relative">
-                                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleInputChange}
-                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.name ? 'border-red-500' : 'border-gray-300'
-                                            }`}
-                                        placeholder="Enter your full name"
-                                    />
+                    <form onSubmit={handleSubmit} className="space-y-3">
+                        {!isLogin ? (
+                            // Signup form: grid 2 columns with gap
+                            <div className="grid grid-cols-2 gap-6">
+                                {/* Full Name - span 2 columns */}
+                                <div >
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <div className="relative">
+                                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleInputChange}
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.name ? 'border-red-500' : 'border-gray-300'
+                                                }`}
+                                            placeholder="Enter your full name"
+                                        />
+                                    </div>
+                                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                                 </div>
-                                {errors.name && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-                                )}
+
+                                {/* Email */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                    <div className="relative">
+                                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.email ? 'border-red-500' : 'border-gray-300'
+                                                }`}
+                                            placeholder="Enter your email"
+                                        />
+                                    </div>
+                                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                                </div>
+
+                                {/* Password */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                    <div className="relative">
+                                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                        <input
+                                            type={showPassword ? 'text' : 'password'}
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            className={`w-full pl-10 pr-12 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.password ? 'border-red-500' : 'border-gray-300'
+                                                }`}
+                                            placeholder="Create a password (min 6 chars)"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        >
+                                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                                </div>
+
+                                {/* Confirm Password */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                                    <div className="relative">
+                                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                        <input
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            name="confirmPassword"
+                                            value={formData.confirmPassword}
+                                            onChange={handleInputChange}
+                                            className={`w-full pl-10 pr-12 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                                                }`}
+                                            placeholder="Confirm your password"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        >
+                                            {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                    {errors.confirmPassword && (
+                                        <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
+                                    )}
+                                </div>
+
+                                {/* Country */}
+                                <div className="col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Country of Origin</label>
+                                    <div className="relative">
+                                        <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                        <select
+                                            name="country"
+                                            value={formData.country}
+                                            onChange={handleInputChange}
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none bg-white ${errors.country ? 'border-red-500' : 'border-gray-300'
+                                                }`}
+                                        >
+                                            <option value="">Select your country</option>
+                                            {countries.map((country) => (
+                                                <option key={country} value={country}>
+                                                    {country}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    {errors.country && <p className="text-red-500 text-xs mt-1">{errors.country}</p>}
+                                </div>
                             </div>
+                        ) : (
+                            // Login form: single column
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                    <div className="relative">
+                                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.email ? 'border-red-500' : 'border-gray-300'
+                                                }`}
+                                            placeholder="Enter your email"
+                                        />
+                                    </div>
+                                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                    <div className="relative">
+                                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                        <input
+                                            type={showPassword ? 'text' : 'password'}
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            className={`w-full pl-10 pr-12 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.password ? 'border-red-500' : 'border-gray-300'
+                                                }`}
+                                            placeholder="Enter your password"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        >
+                                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                                </div>
+                            </>
                         )}
 
-                        {/* Email Field */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Email Address
-                            </label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.email ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                    placeholder="Enter your email"
-                                />
-                            </div>
-                            {errors.email && (
-                                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                            )}
-                        </div>
-
-                        {/* Password Field */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Password
-                            </label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleInputChange}
-                                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.password ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                    placeholder={isLogin ? 'Enter your password' : 'Create a password (min 6 chars)'}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
-                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                </button>
-                            </div>
-                            {errors.password && (
-                                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-                            )}
-                        </div>
-
-                        {/* Confirm Password Field (Registration only) */}
-                        {!isLogin && (
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Confirm Password
-                                </label>
-                                <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                    <input
-                                        type={showConfirmPassword ? 'text' : 'password'}
-                                        name="confirmPassword"
-                                        value={formData.confirmPassword}
-                                        onChange={handleInputChange}
-                                        className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                                            }`}
-                                        placeholder="Confirm your password"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                    >
-                                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
-                                </div>
-                                {errors.confirmPassword && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Country Field (Registration only) */}
-                        {!isLogin && (
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Country of Origin
-                                </label>
-                                <div className="relative">
-                                    <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                    <select
-                                        name="country"
-                                        value={formData.country}
-                                        onChange={handleInputChange}
-                                        className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none bg-white ${errors.country ? 'border-red-500' : 'border-gray-300'
-                                            }`}
-                                    >
-                                        <option value="">Select your country</option>
-                                        {countries.map((country) => (
-                                            <option key={country} value={country}>
-                                                {country}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                {errors.country && (
-                                    <p className="text-red-500 text-xs mt-1">{errors.country}</p>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Submit Button */}
                         <button
                             type="submit"
                             disabled={loading}
@@ -343,16 +371,17 @@ const AuthComponent = () => {
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                                     {isLogin ? 'Signing In...' : 'Creating Account...'}
                                 </div>
+                            ) : isLogin ? (
+                                'Sign In'
                             ) : (
-                                isLogin ? 'Sign In' : 'Create Account'
+                                'Create Account'
                             )}
                         </button>
                     </form>
 
-                    {/* Toggle Link */}
                     <div className="text-center mt-6">
                         <p className="text-sm text-gray-600">
-                            {isLogin ? "Don't have an account? " : "Already have an account? "}
+                            {isLogin ? "Don't have an account? " : 'Already have an account? '}
                             <button
                                 type="button"
                                 onClick={toggleMode}

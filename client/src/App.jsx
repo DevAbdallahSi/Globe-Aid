@@ -55,31 +55,48 @@ const App = () => {
 
     return (
         <div className="w-full overflow-x-hidden">
+            {/* Navbar appears on all pages */}
             <Navbar
                 isLoggedIn={isLoggedIn}
                 user={user}
-                onLogin={handleLogin}
                 onLogout={handleLogout}
             />
 
-            <Routes>
+            {/* Add top padding so content is not covered by fixed Navbar */}
+            <div className="pt-16">
+                {/* Routes for different pages */}
+                <Routes>
+                    <Route path="/loginandregister" element={<AuthComponent onLogin={handleLogin} />} />
+                    <Route path="/" element={<HomePage />} />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            isLoggedIn && user ? (
+                                <UserDashboard user={user} />
+                            ) : (
+                                <AuthComponent onLogin={handleLogin} />
+                            )
+                        }
+                    />
+                    <Route
+                        path="/profile"
+                        element={
+                            isLoggedIn && user ? (
+                                <ProfilePage user={user} />
+                            ) : (
+                                <AuthComponent onLogin={handleLogin} />
+                            )
+                        }
+                    />
+                    <Route path="/timebank" element={<TimeBank />} />
+                </Routes>
 
-                <Route path="/" element={<AuthComponent onLogin={handleLogin} />} />
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/dashboard" element={
-                    isLoggedIn && user ? (
-                        <UserDashboard user={user} />
-                    ) : (
-                        <AuthComponent onLogin={handleLogin} />
-                    )
-                } />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/timebank" element={<TimeBank />} />
-            </Routes>
-
-            <Footer />
+                {/* Footer appears on all pages */}
+                <Footer />
+            </div>
         </div>
     );
+
 };
 
 export default App;
