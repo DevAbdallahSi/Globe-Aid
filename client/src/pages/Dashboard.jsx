@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
     MessageCircle,
     Clock,
@@ -15,15 +16,14 @@ import {
     ChevronRight
 } from 'lucide-react';
 
-const UserDashboard = () => {
+const UserDashboard = ({ user }) => {
     const [isOnline, setIsOnline] = useState(true);
-    const [user] = useState({
-        name: "Alex Chen",
-        location: "Berlin, Germany",
-        memberSince: "March 2024",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-    });
+    // const [user, setUser] = useState(null);
 
+
+    if (!user) {
+        return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
+    }
     const [stats] = useState({
         chatCount: 47,
         servicesOffered: 8,
@@ -43,12 +43,27 @@ const UserDashboard = () => {
         { type: "achievement", message: "Reached 150 hours milestone!", time: "1 day ago" }
     ]);
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setIsOnline(prev => Math.random() > 0.1 ? true : prev);
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
+    // useEffect(() => {
+    //     const fetchUser = async () => {
+    //         const token = localStorage.getItem('token');
+    //         if (!token) return; // optionally redirect to login
+
+    //         try {
+    //             const res = await axios.get('http://localhost:8000/api/users/me', {
+    //                 headers: {
+    //                     Authorization: `Bearer ${token}`
+    //                 }
+    //             });
+    //             setUser(res.data);
+    //         } catch (error) {
+    //             console.error('Failed to fetch user:', error);
+    //             // Optionally redirect to login
+    //         }
+    //     };
+
+    //     fetchUser();
+    // }, []);
+
 
     const StatCard = ({ icon: Icon, label, value, trend, color = "blue" }) => (
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 group">
@@ -91,6 +106,7 @@ const UserDashboard = () => {
         </div>
     );
 
+    if (!user) return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-4 sm:px-6 lg:px-8 py-6">
             {/* Header */}
@@ -112,10 +128,10 @@ const UserDashboard = () => {
                                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Welcome back, {user.name}! 👋</h1>
                                 <div className="flex flex-wrap items-center gap-3 text-gray-600 mt-2">
                                     <div className="flex items-center text-sm">
-                                        <MapPin className="w-4 h-4 mr-1" />{user.location}
+                                        <MapPin className="w-4 h-4 mr-1" />{user?.country || "Unknown"}
                                     </div>
                                     <div className="flex items-center text-sm">
-                                        <Calendar className="w-4 h-4 mr-1" />Member since {user.memberSince}
+                                        <Calendar className="w-4 h-4 mr-1" />Member since {user?.createdAt?.slice(0, 10) || "N/A"}
                                     </div>
                                 </div>
                             </div>

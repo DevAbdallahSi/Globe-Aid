@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './App.css';
 
 import Navbar from './components/NavBar';
@@ -13,25 +14,48 @@ import Footer from './components/Footer';
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState(null);
+    const navigate = useNavigate();
+
+    // Fetch user on app load if token exists
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const fetchUser = async () => {
+            try {
+                const res = await axios.get('http://localhost:8000/api/users/me', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setUser(res.data);
+                setIsLoggedIn(true);
+            } catch (err) {
+                console.error("Failed to auto-login:", err);
+                setIsLoggedIn(false);
+                setUser(null);
+                localStorage.removeItem('token');
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     const handleLogin = (userData) => {
-        // Set login state and user data
         setIsLoggedIn(true);
-        setUser(userData || {
-            name: "John Doe",
-            email: "john@example.com"
-        });
+        setUser(userData.user); // userData must have .user and .token
+        localStorage.setItem('token', userData.token);
+        navigate('/dashboard');
     };
 
     const handleLogout = () => {
         setIsLoggedIn(false);
         setUser(null);
-        localStorage.removeItem('token'); // Optional: clear token
+        localStorage.removeItem('token');
+        navigate('/');
     };
 
     return (
         <div className="w-full overflow-x-hidden">
-            <Navbar 
+            <Navbar
                 isLoggedIn={isLoggedIn}
                 user={user}
                 onLogin={handleLogin}
@@ -39,9 +63,16 @@ const App = () => {
             />
 
             <Routes>
-                <Route path="/login" element={<AuthComponent onLogin={handleLogin} />} />
-                <Route path="/" element={<HomePage />} />
-                <Route path="/dashboard" element={<UserDashboard />} />
+
+                <Route path="/" element={<AuthComponent onLogin={handleLogin} />} />
+                <Route path="/home" element={<HomePage />} />
+                <Route path="/dashboard" element={
+                    isLoggedIn && user ? (
+                        <UserDashboard user={user} />
+                    ) : (
+                        <AuthComponent onLogin={handleLogin} />
+                    )
+                } />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/timebank" element={<TimeBank />} />
             </Routes>

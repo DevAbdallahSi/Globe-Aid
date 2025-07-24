@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 const Navbar = ({ isLoggedIn, user, onLogin, onLogout }) => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -12,8 +13,6 @@ const Navbar = ({ isLoggedIn, user, onLogin, onLogout }) => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
-
-    const navigate = useNavigate();
 
     const handleScroll = (e, targetId) => {
         e.preventDefault();
@@ -29,10 +28,8 @@ const Navbar = ({ isLoggedIn, user, onLogin, onLogout }) => {
     const handleAuthAction = () => {
         if (isLoggedIn) {
             onLogout();
-            navigate('/');
         } else {
-            onLogin();
-            navigate('/login');
+            navigate('/'); // go to login/register page
         }
         setMobileMenuOpen(false);
     };
