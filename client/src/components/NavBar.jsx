@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // add at the top
 
 const Navbar = ({ isLoggedIn, user, onLogin, onLogout }) => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -27,7 +29,7 @@ const Navbar = ({ isLoggedIn, user, onLogin, onLogout }) => {
         if (isLoggedIn) {
             onLogout();
         } else {
-            onLogin();
+            navigate('/'); // go to login/register page
         }
         setMobileMenuOpen(false);
     };
@@ -139,7 +141,7 @@ const Navbar = ({ isLoggedIn, user, onLogin, onLogout }) => {
                                 className="w-full bg-gradient-to-r from-indigo-500 to-purple-700 text-white px-4 py-3 rounded-full flex items-center justify-center gap-2 hover:shadow-lg transition-all"
                                 onClick={handleAuthAction}
                             >
-                                <span>👤</span> 
+                                <span>👤</span>
                                 {isLoggedIn ? 'Logout' : 'Login/Register'}
                             </button>
                         </li>
