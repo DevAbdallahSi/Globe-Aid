@@ -129,7 +129,7 @@ const HomePage = () => {
                         </li>
                         <li>
                             <Link
-                                to="/login"
+                                to="/loginandregister"
                                 className="bg-gradient-to-r from-indigo-500 to-purple-700 text-white px-3 md:px-4 lg:px-6 py-2 rounded-full flex items-center gap-1 lg:gap-2 hover:-translate-y-0.5 transition-all shadow-lg hover:shadow-xl shadow-indigo-500/30 text-sm lg:text-base"
                                 aria-label="Login or Register"
                             >
@@ -328,7 +328,7 @@ const HomePage = () => {
                 </section>
             </main>
 
-            <style jsx>{`
+            <style>{`
         body {
           background-color: #f2f2f2;
         }

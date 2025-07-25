@@ -1,15 +1,3 @@
-// const express = require('express');
-// const cors = require('cors')
-// const app = express();
-// require('./config/mongoose.config');
-// app.use(cors())
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-// require('dotenv').config()
-// const PORT = process.env.PORT;
-// require ('./routes/player.routes')(app);
-// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
 
 const express = require('express');
 const dotenv = require('dotenv');

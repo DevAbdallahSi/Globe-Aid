@@ -7,8 +7,8 @@ const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
-// Register
-exports.registerUser = async (req, res) => {
+// Register a new user
+const registerUser = async (req, res) => {
     const { name, email, password, country } = req.body;
 
     try {
@@ -35,8 +35,8 @@ exports.registerUser = async (req, res) => {
     }
 };
 
-// Login
-exports.loginUser = async (req, res) => {
+// Login existing user
+const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
@@ -55,11 +55,10 @@ exports.loginUser = async (req, res) => {
     }
 };
 
-
 // Get current logged-in user
-exports.getMe = async (req, res) => {
+const getMe = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id).select('-password'); // `req.user` was set in auth middleware
+        const user = await User.findById(req.user._id).select('-password');
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -70,3 +69,37 @@ exports.getMe = async (req, res) => {
     }
 };
 
+// Update user profile
+const updateUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.name = req.body.name || user.name;
+        user.email = req.body.email || user.email;
+        user.country = req.body.country || user.country;
+
+        const updatedUser = await user.save();
+
+        res.status(200).json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            country: updatedUser.country,
+        });
+    } catch (error) {
+        console.error('Update failed:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Export all controller functions
+module.exports = {
+    registerUser,
+    loginUser,
+    getMe,
+    updateUser,
+};
