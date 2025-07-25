@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
     MessageCircle,
@@ -18,8 +19,7 @@ import {
 
 const UserDashboard = ({ user }) => {
     const [isOnline, setIsOnline] = useState(true);
-    // const [user, setUser] = useState(null);
-
+    const navigate = useNavigate();
 
     if (!user) {
         return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
@@ -31,11 +31,7 @@ const UserDashboard = ({ user }) => {
         hoursContributed: 156
     });
 
-    const [services] = useState([
-        { id: 1, title: "German Language Practice", category: "Language", requests: 12, rating: 4.9 },
-        { id: 2, title: "Berlin City Guide", category: "Cultural", requests: 8, rating: 5.0 },
-        { id: 3, title: "University Application Help", category: "Educational", requests: 15, rating: 4.8 }
-    ]);
+
 
     const [recentActivity] = useState([
         { type: "chat", message: "Helped Maria with visa questions", time: "2 hours ago" },
@@ -43,26 +39,29 @@ const UserDashboard = ({ user }) => {
         { type: "achievement", message: "Reached 150 hours milestone!", time: "1 day ago" }
     ]);
 
-    // useEffect(() => {
-    //     const fetchUser = async () => {
-    //         const token = localStorage.getItem('token');
-    //         if (!token) return; // optionally redirect to login
 
-    //         try {
-    //             const res = await axios.get('http://localhost:8000/api/users/me', {
-    //                 headers: {
-    //                     Authorization: `Bearer ${token}`
-    //                 }
-    //             });
-    //             setUser(res.data);
-    //         } catch (error) {
-    //             console.error('Failed to fetch user:', error);
-    //             // Optionally redirect to login
-    //         }
-    //     };
 
-    //     fetchUser();
-    // }, []);
+    const [services, setServices] = useState([]);
+
+    useEffect(() => {
+        const fetchUserServices = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get('http://localhost:8000/api/services/mine', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                setServices(res.data);
+            } catch (error) {
+                console.error('Failed to fetch user services:', error);
+            }
+        };
+
+        if (user) {
+            fetchUserServices();
+        }
+    }, [user]);
 
 
     const StatCard = ({ icon: Icon, label, value, trend, color = "blue" }) => (
@@ -105,6 +104,12 @@ const UserDashboard = ({ user }) => {
             </div>
         </div>
     );
+
+    const handleOfferClick = () => {
+        navigate('/timebank?tab=offer'); 
+    };
+
+
 
     if (!user) return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
     return (
@@ -157,7 +162,8 @@ const UserDashboard = ({ user }) => {
                         </div>
                     </button>
 
-                    <button className="group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
+                    <button onClick={handleOfferClick}
+                    className="group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
                         <div className="flex items-center justify-between">
                             <div className="text-left">
                                 <h3 className="text-xl md:text-2xl font-bold mb-2">Offer Services</h3>

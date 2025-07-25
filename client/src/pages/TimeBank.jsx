@@ -1,58 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Clock, Plus, Search, User, Calendar, Star, ArrowRight, Gift } from 'lucide-react';
+import axios from 'axios';
+
 
 const TimeBank = () => {
-    const [activeTab, setActiveTab] = useState('browse');
+
+    const routerLocation = useLocation();
+    const queryParams = new URLSearchParams(routerLocation.search);
+    const initialTab = queryParams.get('tab') || 'browse';
+
+
+
+    const [activeTab, setActiveTab] = useState(initialTab);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
 
-    // Sample data
-    const [services, setServices] = useState([
-        {
-            id: 1,
-            title: "Guitar Lessons",
-            provider: "Sarah M.",
-            category: "Education",
-            duration: "1 hour",
-            rating: 4.8,
-            description: "Beginner to intermediate guitar lessons. Acoustic or electric.",
-            location: "Online or Downtown",
-            avatar: "🎸"
-        },
-        {
-            id: 2,
-            title: "Home Cooking Classes",
-            provider: "Maria L.",
-            category: "Cooking",
-            duration: "2 hours",
-            rating: 5.0,
-            description: "Learn to cook traditional Mediterranean dishes from scratch.",
-            location: "My kitchen or yours",
-            avatar: "👩‍🍳"
-        },
-        {
-            id: 3,
-            title: "Garden Design Consultation",
-            provider: "Tom R.",
-            category: "Gardening",
-            duration: "1.5 hours",
-            rating: 4.9,
-            description: "Help plan and design your dream garden space.",
-            location: "Your location",
-            avatar: "🌱"
-        },
-        {
-            id: 4,
-            title: "Website Development",
-            provider: "Alex K.",
-            category: "Technology",
-            duration: "3 hours",
-            rating: 4.7,
-            description: "Build simple websites for small businesses or personal use.",
-            location: "Remote",
-            avatar: "💻"
-        }
-    ]);
+
+    const [title, setTitle] = useState('');
+    const [category, setCategory] = useState('Education');
+    const [description, setDescription] = useState('');
+    const [duration, setDuration] = useState('');
+    const [location, setLocation] = useState('');
+
+
+    const [services, setServices] = useState([]);
+
+
+
 
     const [timeHistory, setTimeHistory] = useState([
         { id: 1, type: "earned", service: "Tutoring Math", hours: 2, date: "2024-01-20", with: "John D." },
@@ -86,7 +61,7 @@ const TimeBank = () => {
                         <h3 className="font-semibold text-gray-900">{service.title}</h3>
                         <p className="text-sm text-gray-600 flex items-center">
                             <User className="w-4 h-4 mr-1" />
-                            {service.provider}
+                            {service.user?.name || 'Unknown User'}
                         </p>
                     </div>
                 </div>
@@ -138,6 +113,64 @@ const TimeBank = () => {
             </div>
         </div>
     );
+
+
+    const handleOfferService = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.post('http://localhost:8000/api/services', {
+                title,
+                category,
+                description,
+                duration: parseFloat(duration),
+                location
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            alert('Service offered successfully!');
+            setTitle('');
+            setCategory('');
+            setDescription('');
+            setDuration('');
+            setLocation('');
+            setActiveTab('browse'); // Go back to browse after offering
+        } catch (err) {
+            alert('Failed to offer service');
+            console.error(err);
+        }
+    };
+
+
+    useEffect(() => {
+        const fetchServices = async () => {
+            if (activeTab !== 'browse') return; // Only fetch when browsing
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get('http://localhost:8000/api/services/others', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                setServices(res.data);
+            } catch (err) {
+                console.error('Failed to fetch services:', err);
+            }
+        };
+
+        fetchServices();
+    }, [activeTab]);
+
+
+
+
+
+
+
+
+
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -212,8 +245,8 @@ const TimeBank = () => {
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
                             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === tab.key
-                                    ? 'bg-white text-blue-600 shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-800'
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-gray-600 hover:text-gray-800'
                                 }`}
                         >
                             {tab.label}
@@ -271,33 +304,45 @@ const TimeBank = () => {
                     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                         <h2 className="text-xl font-bold text-gray-900 mb-6">Offer a New Service</h2>
                         <div className="space-y-6">
+                            {/* Title */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Service Title</label>
                                 <input
                                     type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
                                     placeholder="e.g., Piano Lessons, Home Cleaning, Pet Sitting"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                             </div>
 
+                            {/* Category */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                    {categories.slice(1).map(category => (
+                                <select
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                >
+                                    {categories.filter(cat => cat !== 'all').map(category => (
                                         <option key={category} value={category}>{category}</option>
                                     ))}
                                 </select>
                             </div>
 
+                            {/* Description */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                                 <textarea
                                     rows={4}
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Describe your service, experience, and what clients can expect"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                             </div>
 
+                            {/* Duration & Location */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Duration (hours)</label>
@@ -305,6 +350,8 @@ const TimeBank = () => {
                                         type="number"
                                         step="0.5"
                                         min="0.5"
+                                        value={duration}
+                                        onChange={(e) => setDuration(e.target.value)}
                                         placeholder="1.5"
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     />
@@ -313,14 +360,17 @@ const TimeBank = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
                                     <input
                                         type="text"
+                                        value={location}
+                                        onChange={(e) => setLocation(e.target.value)}
                                         placeholder="e.g., Online, Your location, My studio"
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     />
                                 </div>
                             </div>
 
+                            {/* Submit Button */}
                             <button
-                                onClick={() => alert('Service offering functionality would be implemented here')}
+                                onClick={handleOfferService}
                                 className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
                             >
                                 <Plus className="w-5 h-5 mr-2" />
@@ -329,6 +379,7 @@ const TimeBank = () => {
                         </div>
                     </div>
                 )}
+
 
                 {/* History Tab */}
                 {activeTab === 'history' && (
