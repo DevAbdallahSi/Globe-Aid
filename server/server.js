@@ -22,6 +22,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/users', require('./routes/userRoutes.route'));
+app.use('/api/services',require('./routes/serviceRoutes.route'))
 
 // Root Route
 app.get('/', (req, res) => {
