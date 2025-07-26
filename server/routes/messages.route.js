@@ -1,11 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const Message = require('../models/Message');
+const { getMessagesWithUser } = require('../controllers/message.controller');
+const protect = require('../middlewares/authMiddleware'); // Make sure this path is correct
+
+
+router.get('/chat/:otherUserId', protect, getMessagesWithUser);
+
 
 router.post('/', async (req, res) => {
   try {
-    const { senderId, receiverId, content } = req.body;
-    const message = new Message({ sender: senderId, receiver: receiverId, content });
+    const { sender, receiver, content } = req.body;
+    const message = new Message({ sender, receiver, content });
     await message.save();
     res.status(201).json(message);
   } catch (err) {

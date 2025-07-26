@@ -17,10 +17,20 @@ import {
     ChevronRight
 } from 'lucide-react';
 import AgentChatWidget from '../components/AgentChatWidget';
+import ChatBox from '../components/ChatBox';
 
 
 const UserDashboard = ({ user }) => {
     const [isOnline, setIsOnline] = useState(true);
+
+    const [chatWith, setChatWith] = useState(null); // stores the receiver object
+
+
+    const [selectedService, setSelectedService] = useState(null);
+    const [serviceRequests, setServiceRequests] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [requestedServices, setRequestedServices] = useState([]);
 
     const navigate = useNavigate();
 
@@ -61,10 +71,63 @@ const UserDashboard = ({ user }) => {
             }
         };
 
+
+        const fetchRequestedServices = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get('http://localhost:8000/api/services/requested', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                setRequestedServices(res.data);
+            } catch (err) {
+                console.error("Failed to fetch requested services:", err);
+            }
+        };
+
         if (user) {
             fetchUserServices();
+            fetchRequestedServices();
         }
     }, [user]);
+
+
+
+
+
+    const handleCancelRequest = async (requestId) => {
+        if (!window.confirm("Are you sure you want to cancel this request?")) return;
+        try {
+            const token = localStorage.getItem('token');
+            await axios.delete(`http://localhost:8000/api/services/request/${requestId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setRequestedServices(prev => prev.filter(req => req._id !== requestId));
+        } catch (err) {
+            console.error("Failed to cancel request:", err);
+            alert("Failed to cancel request");
+        }
+    };
+
+
+
+    const handleServiceClick = async (service) => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`http://localhost:8000/api/services/requests/${service._id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setSelectedService(service);
+            setServiceRequests(res.data);
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error('Failed to fetch requests for this service:', error);
+        }
+    };
+
 
     const StatCard = ({ icon: Icon, label, value, trend, color = "blue" }) => (
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 group">
@@ -87,7 +150,7 @@ const UserDashboard = ({ user }) => {
     );
 
     const ServiceCard = ({ service }) => (
-        <div className="bg-white rounded-xl p-5 border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300 group cursor-pointer">
+        <div onClick={() => handleServiceClick(service)} className="bg-white rounded-xl p-5 border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300 group cursor-pointer">
             <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
@@ -98,7 +161,13 @@ const UserDashboard = ({ user }) => {
                 <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
             </div>
             <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600">
-                <span>{service.requests} requests</span>
+                {service.requests?.length > 0 ? (
+                    <span className="text-blue-600 underline cursor-pointer" >
+                        {service.requests.length} requests
+                    </span>
+                ) : (
+                    <span className="text-gray-400">0 requests</span>
+                )}
                 <div className="flex items-center">
                     <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
                     <span>{service.rating}</span>
@@ -108,7 +177,7 @@ const UserDashboard = ({ user }) => {
     );
 
     const handleOfferClick = () => {
-        navigate('/timebank?tab=offer'); 
+        navigate('/timebank?tab=offer');
     };
 
 
@@ -120,7 +189,7 @@ const UserDashboard = ({ user }) => {
             <div className="fixed bottom-6 right-6 z-50">
                 <AgentChatWidget />
             </div>
-            
+
 
 
             {/* Header */}
@@ -173,7 +242,7 @@ const UserDashboard = ({ user }) => {
                     </button>
 
                     <button onClick={handleOfferClick}
-                    className="group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
+                        className="group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
                         <div className="flex items-center justify-between">
                             <div className="text-left">
                                 <h3 className="text-xl md:text-2xl font-bold mb-2">Offer Services</h3>
@@ -209,6 +278,55 @@ const UserDashboard = ({ user }) => {
                             </div>
                         </div>
                     </div>
+
+                    {requestedServices.length > 0 && (
+                        <div className="mt-10">
+                            <h2 className="text-lg font-semibold text-gray-800 mb-4">Services You've Requested</h2>
+                            <div className="space-y-4">
+                                {requestedServices.map(req => (
+                                    <div key={req._id} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div>
+                                                <h3 className="text-gray-900 font-semibold">{req.service.title}</h3>
+                                                <p className="text-sm text-gray-500">{req.service.category}</p>
+                                            </div>
+                                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${req.status === 'pending'
+                                                ? 'bg-yellow-100 text-yellow-700'
+                                                : req.status === 'accepted'
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-red-100 text-red-700'
+                                                }`}>
+                                                {req.status}
+                                            </span>
+                                        </div>
+
+                                        <p className="text-sm text-gray-700 mb-2">{req.service.description}</p>
+
+                                        <div className="flex flex-wrap justify-between items-center text-sm text-gray-500 mb-3">
+                                            <span>Duration: {req.service.duration}h</span>
+                                            <span>Location: {req.service.location}</span>
+                                        </div>
+
+                                        <div className="flex justify-between items-center">
+                                            <button
+                                                onClick={() => handleCancelRequest(req._id)}
+                                                className="text-red-600 hover:underline text-sm"
+                                            >
+                                                Cancel Request
+                                            </button>
+                                            <button
+                                                onClick={() => navigate(`/chat/${req.service.user}`)}
+                                                className="text-blue-600 hover:underline text-sm"
+                                            >
+                                                Open Chat
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
 
                     <div className="space-y-6">
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -247,7 +365,55 @@ const UserDashboard = ({ user }) => {
                     </div>
                 </div>
             </div>
+
+
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                        <button
+                            onClick={() => setIsModalOpen(false)}
+                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+                        >
+                            ✕
+                        </button>
+                        <h2 className="text-xl font-bold mb-4">Requests for "{selectedService.title}"</h2>
+                        {serviceRequests.length > 0 ? (
+                            <ul className="space-y-3">
+                                {serviceRequests.map((req) => (
+                                    <li
+                                        key={req._id}
+                                        className="flex flex-col py-2 border-b cursor-pointer hover:bg-gray-50"
+                                        onClick={() => {
+                                            setChatWith(req.requester); // sets receiver
+                                            setIsModalOpen(false);      // closes modal
+                                        }}
+                                    >
+                                        <span className="font-medium text-gray-900">{req.requester?.name || "Unknown"}</span>
+                                        <span className="text-sm text-gray-500">{req.requester?.email || "N/A"}</span>
+                                    </li>
+
+
+
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-gray-500">No requests yet for this service.</p>
+                        )}
+                    </div>
+                </div>
+            )}
+            {chatWith && (
+                <div className="mt-8">
+                    <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                        Chat with {chatWith.name}
+                    </h2>
+                    <ChatBox userId={user._id} receiverId={chatWith._id} />
+                </div>
+            )}
+
         </div>
+
+
     );
 };
 
