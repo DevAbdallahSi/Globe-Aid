@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import travelImage from '../assets/images/image2.jpg';
+import axios from 'axios';
+import EmojiPicker from 'emoji-picker-react';
 
 // Lazy load heavy components
 const AgentChatWidget = lazy(() => import('../components/AgentChatWidget'));
@@ -51,7 +53,7 @@ const LazySection = ({ children, fallback, className = "" }) => {
     );
 };
 
-const HomePage = () => {
+const HomePage = ({ isLoggedIn, user }) => {
     const [activeTab, setActiveTab] = useState('students');
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -180,26 +182,67 @@ const HomePage = () => {
         { icon: "📚", title: "Personalized Learning", description: "Receive customized cultural learning paths based on your specific situation, goals, and interests." }
     ];
 
-    const testimonials = [
-        {
-            text: "GlobeAid helped me understand American university culture so much better. The AI assistant answered all my questions about campus life, and I finally felt confident joining study groups.",
-            author: "Maria Rodriguez",
-            role: "International Student, MIT",
-            avatar: "👩‍🎓"
-        },
-        {
-            text: "Moving to Germany for work was overwhelming until I found GlobeAid. The cultural insights and emotional support helped me adapt so much faster than I expected.",
-            author: "James Park",
-            role: "Software Engineer, Berlin",
-            avatar: "👨‍💼"
-        },
-        {
-            text: "As a refugee, understanding Canadian systems and culture was crucial. GlobeAid's AI assistant was patient and helpful, making my integration journey smoother.",
-            author: "Ahmed Hassan",
-            role: "New Canadian Resident",
-            avatar: "👨‍👩‍👧"
+    const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+    const [feedback, setFeedback] = useState({
+        author: '',
+        role: '',
+        text: ''
+    });
+    const [submitting, setSubmitting] = useState(false);
+    const [allFeedback, setAllFeedback] = useState([]);
+
+    useEffect(() => {
+        const fetchFeedback = async () => {
+            try {
+                const res = await axios.get('http://localhost:8000/api/feedback');
+                setAllFeedback(res.data);
+            } catch (err) {
+                console.error('Failed to load feedback:', err);
+            }
+        };
+
+        fetchFeedback();
+    }, []);
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const userFeedbackCount = allFeedback.filter(fb => fb.author === feedback.author).length;
+        if (userFeedbackCount >= 2) {
+            alert("You can only submit up to 2 feedback messages.");
+            return;
         }
-    ];
+
+
+        if (!feedback.text || !feedback.author) return;
+
+        setSubmitting(true);
+
+        try {
+            // Submit to backend
+            const res = await axios.post('http://localhost:8000/api/feedback', feedback);
+
+            // Append new feedback to the display list
+            setAllFeedback((prev) => [res.data, ...prev]);
+
+            // Reset form
+            setFeedback({
+                author: '',
+                role: '',
+                text: ''
+            });
+
+            setShowFeedbackForm(false);
+        } catch (err) {
+            console.error(err);
+            alert('Failed to submit feedback.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+
+
 
     useEffect(() => {
         const handleScroll = () => {
@@ -215,17 +258,6 @@ const HomePage = () => {
         } else {
             setSelectedCountry(country);
             setShowCountryPopup(true);
-        }
-    };
-
-    const handleScroll = (e, targetId) => {
-        e.preventDefault();
-        const target = document.querySelector(targetId);
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
         }
     };
 
@@ -574,6 +606,7 @@ const MoreCountriesPopup = ({ countries, onSelect, onClose }) => {
     );
 };
 
+
     return (
         <div className="font-sans text-gray-800 min-h-screen overflow-x-hidden relative">
             {/* Animated Background Elements */}
@@ -585,113 +618,14 @@ const MoreCountriesPopup = ({ countries, onSelect, onClose }) => {
             </div>
 
             {/* Cultural Pattern Overlay */}
-            <div className="fixed inset-0 opacity-5 pointer-events-none z-0" 
-                 style={{
-                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3Ccircle cx='15' cy='15' r='2'/%3E%3Ccircle cx='45' cy='15' r='2'/%3E%3Ccircle cx='15' cy='45' r='2'/%3E%3Ccircle cx='45' cy='45' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                     backgroundSize: '60px 60px'
-                 }}>
+            <div className="fixed inset-0 opacity-5 pointer-events-none z-0"
+                style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3Ccircle cx='15' cy='15' r='2'/%3E%3Ccircle cx='45' cy='15' r='2'/%3E%3Ccircle cx='15' cy='45' r='2'/%3E%3Ccircle cx='45' cy='45' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                    backgroundSize: '60px 60px'
+                }}>
             </div>
 
-            {/* Navigation */}
-            <nav className={`fixed top-0 w-full z-50 py-2 sm:py-3 md:py-4 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur shadow-md border-b border-indigo-100' : 'bg-white/95 backdrop-blur border-b border-white/20'}`}>
-                <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 flex justify-between items-center">
-                    <div className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent animate-gradient">
-                        🌍 GlobeAid
-                    </div>
-                    
-                    {/* Desktop Menu */}
-                    <ul className="hidden md:flex items-center space-x-4 lg:space-x-6 xl:space-x-8">
-                        <li>
-                            <a
-                                href="#home"
-                                className="font-medium hover:text-indigo-500 hover:-translate-y-0.5 transition-all text-sm lg:text-base relative group"
-                                onClick={(e) => handleScroll(e, '#home')}
-                                aria-label="Navigate to Home"
-                            >
-                                Home
-                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 transition-all group-hover:w-full"></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="#about"
-                                className="font-medium hover:text-indigo-500 hover:-translate-y-0.5 transition-all text-sm lg:text-base relative group"
-                                onClick={(e) => handleScroll(e, '#about')}
-                                aria-label="Navigate to About Us"
-                            >
-                                About Us
-                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 transition-all group-hover:w-full"></span>
-                            </a>
-                        </li>
-                        <li>
-                            <Link
-                                to="/loginandregister"
-                                className="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white px-3 md:px-4 lg:px-6 py-2 rounded-full flex items-center gap-1 lg:gap-2 hover:-translate-y-0.5 hover:scale-105 transition-all shadow-lg hover:shadow-xl shadow-indigo-500/30 text-sm lg:text-base relative overflow-hidden group"
-                                aria-label="Login or Register"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <span className="text-xs lg:text-sm relative z-10">👤</span>
-                                <span className="hidden lg:inline relative z-10">Login/Register</span>
-                                <span className="lg:hidden relative z-10">Login</span>
-                            </Link>
-                        </li>
-                    </ul>
-
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden p-2 focus:outline-none"
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        aria-label="Toggle mobile menu"
-                    >
-                        <div className="w-5 h-5 sm:w-6 sm:h-6 flex flex-col justify-center space-y-1">
-                            <span className={`block h-0.5 w-full bg-gray-800 transition-all ${mobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-                            <span className={`block h-0.5 w-full bg-gray-800 transition-all ${mobileMenuOpen ? 'opacity-0' : ''}`}></span>
-                            <span className={`block h-0.5 w-full bg-gray-800 transition-all ${mobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
-                        </div>
-                    </button>
-                </div>
-
-                {/* Mobile Menu */}
-                {mobileMenuOpen && (
-                    <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur border-b border-gray-200 px-3 sm:px-4 py-4">
-                        <ul className="space-y-4">
-                            <li>
-                                <a
-                                    href="#home"
-                                    className="block font-medium hover:text-indigo-500 transition-all py-2"
-                                    onClick={(e) => {
-                                        handleScroll(e, '#home');
-                                        setMobileMenuOpen(false);
-                                    }}
-                                >
-                                    Home
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="#about"
-                                    className="block font-medium hover:text-indigo-500 transition-all py-2"
-                                    onClick={(e) => {
-                                        handleScroll(e, '#about');
-                                        setMobileMenuOpen(false);
-                                    }}
-                                >
-                                    About Us
-                                </a>
-                            </li>
-                            <li>
-                                <Link
-                                    to="/loginandregister"
-                                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-700 text-white px-4 py-3 rounded-full flex items-center justify-center gap-2 hover:shadow-lg transition-all"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                >
-                                    <span>👤</span> Login/Register
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-                )}
-            </nav>
+            
 
             <main className="relative z-10">
                 {/* Hero Section */}
@@ -791,7 +725,7 @@ const MoreCountriesPopup = ({ countries, onSelect, onClose }) => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 mt-6 sm:mt-8 md:mt-12">
                             {features.map((feature, index) => (
                                 <div key={index} className="bg-white/80 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 lg:p-10 text-center shadow-xl hover:-translate-y-2 transition-all relative overflow-hidden group animate-fadeInUp"
-                                     style={{ animationDelay: `${index * 0.1}s` }}>
+                                    style={{ animationDelay: `${index * 0.1}s` }}>
                                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500"></div>
                                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     <div className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 md:mb-6 group-hover:scale-110 transition-transform relative z-10">{feature.icon}</div>
@@ -830,32 +764,133 @@ const MoreCountriesPopup = ({ countries, onSelect, onClose }) => {
                 </LazySection>
 
                 {/* Testimonials Section */}
-                <LazySection
-                    fallback={<SectionSkeleton height="h-96" />}
-                    className="bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 py-10 sm:py-16 md:py-20 text-white relative"
-                >
-                    <div className="absolute inset-0 bg-black/10"></div>
-                    <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-3 sm:mb-4">What Our Community Says</h2>
-                        <p className="text-sm sm:text-base md:text-lg lg:text-xl opacity-90 text-center mb-8 sm:mb-12 md:mb-16 max-w-4xl mx-auto leading-relaxed">Real stories from people who found their place with GlobeAid</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mt-6 sm:mt-8 md:mt-12">
-                            {testimonials.map((testimonial, index) => (
-                                <div key={index} className="bg-white/10 backdrop-blur rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 border border-white/20 hover:-translate-y-2 transition-all group animate-fadeInUp"
-                                     style={{ animationDelay: `${index * 0.1}s` }}>
-                                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl md:rounded-2xl"></div>
-                                    <p className="italic mb-3 sm:mb-4 md:mb-6 text-sm sm:text-base md:text-lg leading-relaxed relative z-10">{testimonial.text}</p>
-                                    <div className="flex items-center gap-2 sm:gap-3 md:gap-4 relative z-10">
-                                        <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/20 flex items-center justify-center text-lg sm:text-xl md:text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">{testimonial.avatar}</div>
-                                        <div className="min-w-0">
-                                            <h4 className="font-semibold text-xs sm:text-sm md:text-base">{testimonial.author}</h4>
-                                            <p className="text-xs sm:text-xs md:text-sm opacity-80">{testimonial.role}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                {/* Testimonials Section with Slider */}
+<LazySection
+    fallback={<SectionSkeleton height="h-96" />}
+    className="bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 py-10 sm:py-16 md:py-20 text-white relative"
+>
+    <div className="absolute inset-0 bg-black/10"></div>
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
+        {/* Header */}
+        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-3 sm:mb-4">
+            What Our Community Says
+        </h2>
+        <p className="text-sm sm:text-base md:text-lg lg:text-xl opacity-90 text-center mb-8 sm:mb-12 md:mb-16 max-w-4xl mx-auto leading-relaxed">
+            Real stories from people who found their place with GlobeAid
+        </p>
+        
+        {/* Slider Container */}
+        <div className="relative mt-6 sm:mt-8 md:mt-12">
+            {/* Navigation Buttons */}
+            <button
+                onClick={() => {
+                    const slider = document.getElementById('testimonials-slider');
+                    slider.scrollBy({ left: -320, behavior: 'smooth' });
+                }}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-3 transition-all duration-300 hover:scale-110 border border-white/30"
+                aria-label="Previous testimonials"
+            >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            
+            <button
+                onClick={() => {
+                    const slider = document.getElementById('testimonials-slider');
+                    slider.scrollBy({ left: 320, behavior: 'smooth' });
+                }}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-3 transition-all duration-300 hover:scale-110 border border-white/30"
+                aria-label="Next testimonials"
+            >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+
+            {/* Slider Track */}
+            <div
+                id="testimonials-slider"
+                className="flex gap-6 overflow-x-auto scroll-smooth pb-4 px-12 scrollbar-hide"
+                style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    WebkitScrollbar: { display: 'none' }
+                }}
+            >
+                {allFeedback.map((fb, index) => (
+                    <div
+                        key={index}
+                        className="bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/20 transition-all duration-300 hover:bg-white/15 hover:-translate-y-2 hover:shadow-2xl relative flex flex-col justify-between min-w-[300px] max-w-[300px] min-h-[320px] overflow-hidden flex-shrink-0"
+                    >
+                        {/* Feedback Text */}
+                        <p className="italic text-sm sm:text-base leading-relaxed mb-6 flex-grow break-words overflow-wrap-anywhere">
+                            "{fb.text.length > 180 ? fb.text.slice(0, 180) + '…' : fb.text}"
+                        </p>
+
+                        {/* Author Info */}
+                        <div className="flex items-center gap-4 mt-auto">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/30 to-white/10 flex items-center justify-center text-xl border border-white/20 flex-shrink-0">
+                                {fb.avatar || '👤'}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h4 className="font-semibold text-base break-words">{fb.author}</h4>
+                                <p className="text-sm text-white/80 break-words">{fb.role}</p>
+                            </div>
+                        </div>
+
+                        {/* Card Number Indicator */}
+                        <div className="absolute top-4 right-4 bg-white/20 rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold">
+                            {index + 1}
                         </div>
                     </div>
-                </LazySection>
+                ))}
+                
+                {/* Add more feedback prompt card */}
+                {isLoggedIn && (
+                    <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 md:p-8 border-2 border-dashed border-white/30 transition-all duration-300 hover:bg-white/10 hover:border-white/50 relative flex flex-col items-center justify-center min-w-[300px] max-w-[300px] min-h-[320px] overflow-hidden flex-shrink-0 cursor-pointer"
+                        onClick={() => setShowFeedbackForm(true)}
+                    >
+                        <div className="text-6xl mb-4 opacity-60">✍️</div>
+                        <h4 className="font-semibold text-lg mb-2 text-center">Share Your Story</h4>
+                        <p className="text-sm text-white/80 text-center leading-relaxed">
+                            Help others by sharing your experience with GlobeAid
+                        </p>
+                        <div className="mt-4 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-sm font-medium transition-colors">
+                            Add Feedback
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Scroll Indicator Dots */}
+            <div className="flex justify-center mt-8 gap-2">
+                {Array.from({ length: Math.min(allFeedback.length, 5) }, (_, i) => (
+                    <button
+                        key={i}
+                        onClick={() => {
+                            const slider = document.getElementById('testimonials-slider');
+                            slider.scrollTo({ left: i * 320, behavior: 'smooth' });
+                        }}
+                        className="w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-colors"
+                        aria-label={`Go to testimonial ${i + 1}`}
+                    />
+                ))}
+            </div>
+        </div>
+    </div>
+
+    {/* Fixed Add Feedback Button (Alternative) */}
+    {isLoggedIn && (
+        <button
+            onClick={() => setShowFeedbackForm(true)}
+            className="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-3 rounded-full shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-300 border border-white/20"
+            aria-label="Add Feedback"
+        >
+            ✍️ Add Feedback
+        </button>
+    )}
+</LazySection>
 
                 {/* About Section */}
                 <LazySection
@@ -877,6 +912,62 @@ const MoreCountriesPopup = ({ countries, onSelect, onClose }) => {
                         <AgentChatWidget />
                     </div>
                 </Suspense>
+                {showFeedbackForm && (
+                    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 sm:px-6">
+                        <form
+                            onSubmit={handleSubmit}
+                            className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 md:p-8 border border-gray-200 animate-fadeInUp"
+                        >
+                            <h2 className="text-xl font-bold text-indigo-700 mb-4 text-center">We’d Love Your Feedback ✍️</h2>
+
+                            <div className="space-y-4">
+                                <input
+                                    type="text"
+                                    placeholder="Your Name"
+                                    className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                                    value={feedback.author}
+                                    onChange={(e) => setFeedback({ ...feedback, author: e.target.value })}
+                                    required
+                                />
+
+                                <input
+                                    type="text"
+                                    placeholder="Your Role (optional)"
+                                    className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                                    value={feedback.role}
+                                    onChange={(e) => setFeedback({ ...feedback, role: e.target.value })}
+                                />
+
+                                <textarea
+                                    placeholder="Your feedback..."
+                                    className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                                    rows={4}
+                                    value={feedback.text}
+                                    onChange={(e) => setFeedback({ ...feedback, text: e.target.value })}
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex justify-between items-center mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowFeedbackForm(false)}
+                                    className="text-gray-500 hover:text-gray-700 transition"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={submitting}
+                                    className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2 rounded-full font-semibold hover:scale-105 transition-all disabled:opacity-50"
+                                >
+                                    {submitting ? 'Submitting...' : 'Submit'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+
             </main>
 
             <style>{`

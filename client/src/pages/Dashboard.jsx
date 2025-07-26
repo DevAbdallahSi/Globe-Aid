@@ -172,6 +172,7 @@ const UserDashboard = ({ user }) => {
                             <MessageCircle className="w-8 h-8 md:w-12 md:h-12 group-hover:scale-110 transition-transform" />
                         </div>
                     </button>
+                    
 
                     <button onClick={handleOfferClick}
                     className="group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
