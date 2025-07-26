@@ -10,6 +10,10 @@ import UserDashboard from './pages/Dashboard';
 import ProfilePage from './pages/Profile';
 import TimeBank from './pages/TimeBank';
 import Footer from './components/Footer';
+import DeepSeekChat from './components/DeepSeekChat';
+import ChatBox from './components/ChatBox';
+import { useParams } from 'react-router-dom';
+
 
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -38,6 +42,12 @@ const App = () => {
 
         fetchUser();
     }, []);
+
+    const ChatWrapper = ({ user }) => {
+        const { receiverId } = useParams();
+        return <ChatBox userId={user._id} receiverId={receiverId} />;
+    };
+
 
     const handleLogin = (userData) => {
         setIsLoggedIn(true);
@@ -69,6 +79,16 @@ const App = () => {
                     <Route path="/loginandregister" element={<AuthComponent onLogin={handleLogin} />} />
                     <Route path="/" element={<HomePage />} />
                     <Route
+                        path="/chat/:receiverId"
+                        element={
+                            isLoggedIn && user ? (
+                                <ChatWrapper user={user} />
+                            ) : (
+                                <AuthComponent onLogin={handleLogin} />
+                            )
+                        }
+                    />
+                    <Route
                         path="/dashboard"
                         element={
                             isLoggedIn && user ? (
@@ -89,9 +109,19 @@ const App = () => {
                         }
                     />
                     <Route path="/timebank" element={<TimeBank />} />
-                </Routes>
+                    <Route
+                        path="/deepseek"
+                        element={
+                            isLoggedIn && user ? (
+                                <DeepSeekChat />
+                            ) : (
+                                <AuthComponent onLogin={handleLogin} />
+                            )
+                        }
+                    />                </Routes>
 
                 {/* Footer appears on all pages */}
+
                 <Footer />
             </div>
         </div>

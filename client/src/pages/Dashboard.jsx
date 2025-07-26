@@ -16,14 +16,18 @@ import {
     MapPin,
     ChevronRight
 } from 'lucide-react';
+import AgentChatWidget from '../components/AgentChatWidget';
+
 
 const UserDashboard = ({ user }) => {
     const [isOnline, setIsOnline] = useState(true);
+
     const navigate = useNavigate();
 
     if (!user) {
         return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
     }
+
     const [stats] = useState({
         chatCount: 47,
         servicesOffered: 8,
@@ -38,7 +42,6 @@ const UserDashboard = ({ user }) => {
         { type: "service", message: "New request for German practice", time: "5 hours ago" },
         { type: "achievement", message: "Reached 150 hours milestone!", time: "1 day ago" }
     ]);
-
 
 
     const [services, setServices] = useState([]);
@@ -62,7 +65,6 @@ const UserDashboard = ({ user }) => {
             fetchUserServices();
         }
     }, [user]);
-
 
     const StatCard = ({ icon: Icon, label, value, trend, color = "blue" }) => (
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 group">
@@ -113,7 +115,14 @@ const UserDashboard = ({ user }) => {
 
     if (!user) return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-4 sm:px-6 lg:px-8 py-6">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-4 sm:px-6 lg:px-8 py-6 relative">
+            {/* Floating Agent Chat Widget */}
+            <div className="fixed bottom-6 right-6 z-50">
+                <AgentChatWidget />
+            </div>
+            
+
+
             {/* Header */}
             <div className="max-w-7xl mx-auto mb-8">
                 <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
@@ -129,6 +138,7 @@ const UserDashboard = ({ user }) => {
                                     {isOnline ? <Wifi className="w-3 h-3 text-white" /> : <WifiOff className="w-3 h-3 text-white" />}
                                 </div>
                             </div>
+
                             <div>
                                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Welcome back, {user.name}! 👋</h1>
                                 <div className="flex flex-wrap items-center gap-3 text-gray-600 mt-2">
@@ -217,7 +227,6 @@ const UserDashboard = ({ user }) => {
                                 ))}
                             </div>
                         </div>
-
                         <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-6 text-white">
                             <h3 className="text-lg font-bold mb-4">Community Impact</h3>
                             <div className="space-y-3">

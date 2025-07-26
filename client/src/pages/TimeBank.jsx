@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Clock, Plus, Search, User, Calendar, Star, ArrowRight, Gift } from 'lucide-react';
+import AgentChatWidget from '../components/AgentChatWidget';
+
 import axios from 'axios';
 
 
@@ -379,6 +381,7 @@ const TimeBank = () => {
                         </div>
                     </div>
                 )}
+                <AgentChatWidget />
 
 
                 {/* History Tab */}
@@ -403,6 +406,7 @@ const TimeBank = () => {
                 )}
             </div>
         </div>
+        
     );
 };
 

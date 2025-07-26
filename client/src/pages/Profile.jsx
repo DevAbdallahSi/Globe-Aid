@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {
-    User, Mail, Globe, MapPin, Settings, Clock,
-    Trash2, Edit3, Save, X
-} from 'lucide-react';
+import {User, Mail, Globe, MapPin, Settings, Clock,Trash2, Edit3, Save, X} from 'lucide-react';
+import AgentChatWidget from '../components/AgentChatWidget';
+
 
 const ProfilePage = () => {
     const [isEditing, setIsEditing] = useState(false);
@@ -133,6 +132,7 @@ const ProfilePage = () => {
                                 </div>
                             )}
                         </div>
+                        <AgentChatWidget />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {['name', 'email', 'language', 'country'].map((field, idx) => (
