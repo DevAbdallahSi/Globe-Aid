@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Mail, Lock, Globe, AlertCircle, CheckCircle } from 'lucide-react';
-import image5 from '../assets/images/image5.jpg'; // Make sure this path is correct
+import image3 from '../assets/images/image3.jpg'; // Make sure this path is correct
 
 const AuthComponent = () => {
     const [isLogin, setIsLogin] = useState(true);
@@ -25,7 +25,7 @@ const AuthComponent = () => {
         'Brazil', 'Bulgaria', 'Canada', 'Chile', 'China', 'Colombia', 'Croatia',
         'Czech Republic', 'Denmark', 'Ecuador', 'Egypt', 'Estonia', 'Finland',
         'France', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Hungary', 'Iceland',
-        'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy',
+        'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Italy',
         'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kuwait', 'Latvia', 'Lebanon',
         'Libya', 'Lithuania', 'Luxembourg', 'Malaysia', 'Mexico', 'Morocco',
         'Netherlands', 'New Zealand', 'Nigeria', 'Norway', 'Pakistan', 'Palestine',
@@ -147,18 +147,16 @@ const AuthComponent = () => {
     return (
         <div
             className="min-h-screen bg-cover bg-center flex justify-center items-center relative"
-            style={{ backgroundImage: `url(${image5})` }}
+            style={{ backgroundImage: `url(${image3})` }}
         >
-            {/* Optional overlay for better text visibility */}
-            {/* <div className="absolute inset-0 bg-black opacity-30"></div> */}
-
-            {/* Form container */}
-            <div className="relative w-full max-w-xl p-8 rounded-2xl bg-white/10 backdrop-blur-toggleMode shadow-lg border border-white/40">
+            {/* Form container with visible background and blur */}
+            <div className="relative w-full max-w-xl p-8 rounded-2xl bg-white/5 bg-opacity-90 backdrop-blur-md shadow-lg border border-white/40">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6 text-center rounded-t-2xl">
+                <div className="px-8 py-6 text-center rounded-t-2xl" style={{ backgroundColor: '#d2a54b' }}>
                     <div className="text-white text-3xl font-bold mb-2">🌍 GlobeAid</div>
-                    <p className="text-blue-100 text-sm">Helping you feel at home anywhere</p>
+                    <p className="text-white text-sm">Helping you feel at home anywhere</p>
                 </div>
+
 
                 {/* Form Content */}
                 <div className="px-8 py-6">
@@ -204,9 +202,9 @@ const AuthComponent = () => {
                         {!isLogin ? (
                             // Signup form: grid 2 columns with gap
                             <div className="grid grid-cols-2 gap-6">
-                                {/* Full Name - span 2 columns */}
+                                {/* Full Name */}
                                 <div >
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">Full Name</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <input
@@ -214,7 +212,7 @@ const AuthComponent = () => {
                                             name="name"
                                             value={formData.name}
                                             onChange={handleInputChange}
-                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.name ? 'border-red-500' : 'border-gray-300'
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white text-gray-900 ${errors.name ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                             placeholder="Enter your full name"
                                         />
@@ -224,7 +222,7 @@ const AuthComponent = () => {
 
                                 {/* Email */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">Email Address</label>
                                     <div className="relative">
                                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <input
@@ -232,7 +230,7 @@ const AuthComponent = () => {
                                             name="email"
                                             value={formData.email}
                                             onChange={handleInputChange}
-                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.email ? 'border-red-500' : 'border-gray-300'
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white text-gray-900 ${errors.email ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                             placeholder="Enter your email"
                                         />
@@ -242,7 +240,7 @@ const AuthComponent = () => {
 
                                 {/* Password */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">Password</label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <input
@@ -250,7 +248,7 @@ const AuthComponent = () => {
                                             name="password"
                                             value={formData.password}
                                             onChange={handleInputChange}
-                                            className={`w-full pl-10 pr-12 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.password ? 'border-red-500' : 'border-gray-300'
+                                            className={`w-full pl-10 pr-12 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white text-gray-900 ${errors.password ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                             placeholder="Create a password (min 6 chars)"
                                         />
@@ -267,7 +265,7 @@ const AuthComponent = () => {
 
                                 {/* Confirm Password */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">Confirm Password</label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <input
@@ -275,7 +273,7 @@ const AuthComponent = () => {
                                             name="confirmPassword"
                                             value={formData.confirmPassword}
                                             onChange={handleInputChange}
-                                            className={`w-full pl-10 pr-12 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                                            className={`w-full pl-10 pr-12 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white text-gray-900 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                             placeholder="Confirm your password"
                                         />
@@ -294,14 +292,14 @@ const AuthComponent = () => {
 
                                 {/* Country */}
                                 <div className="col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Country of Origin</label>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">Country of Origin</label>
                                     <div className="relative">
                                         <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <select
                                             name="country"
                                             value={formData.country}
                                             onChange={handleInputChange}
-                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none bg-white ${errors.country ? 'border-red-500' : 'border-gray-300'
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none bg-white text-gray-900 ${errors.country ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                         >
                                             <option value="">Select your country</option>
@@ -319,7 +317,7 @@ const AuthComponent = () => {
                             // Login form: single column
                             <>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">Email Address</label>
                                     <div className="relative">
                                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <input
@@ -327,7 +325,7 @@ const AuthComponent = () => {
                                             name="email"
                                             value={formData.email}
                                             onChange={handleInputChange}
-                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.email ? 'border-red-500' : 'border-gray-300'
+                                            className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white text-gray-900 ${errors.email ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                             placeholder="Enter your email"
                                         />
@@ -336,7 +334,7 @@ const AuthComponent = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">Password</label>
                                     <div className="relative">
                                         <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <input
@@ -344,7 +342,7 @@ const AuthComponent = () => {
                                             name="password"
                                             value={formData.password}
                                             onChange={handleInputChange}
-                                            className={`w-full pl-10 pr-12 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.password ? 'border-red-500' : 'border-gray-300'
+                                            className={`w-full pl-10 pr-12 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white text-gray-900 ${errors.password ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                             placeholder="Enter your password"
                                         />
@@ -364,7 +362,7 @@ const AuthComponent = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-[#d2a54b] hover:bg-[#c2943c] text-white py-3 px-4 rounded-lg font-medium focus:ring-2 focus:ring-[#d2a54b] focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <div className="flex items-center justify-center">

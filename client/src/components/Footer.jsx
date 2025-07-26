@@ -91,7 +91,7 @@ const Footer = () => {
                 </div>
 
                 <div className="pt-4 sm:pt-6 md:pt-8 border-t border-gray-800 text-center text-gray-500">
-                    <p className="text-xs sm:text-sm md:text-base">© {new Date().getFullYear()} GlobeAid. All rights reserved. Built with ❤️ for global citizens.</p>
+                    <p className="text-xs sm:text-sm md:text-base">© {new Date().getFullYear()} GlobeAid. All rights reserved.</p>
                 </div>
             </div>
         </footer>
