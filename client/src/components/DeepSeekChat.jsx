@@ -1,21 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Send, Bot, User, AlertCircle } from 'lucide-react';
+import { useEffect } from 'react';
 
-const DeepSeekChat = () => {
+
+const DeepSeekChat = ({ user }) => {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-
     useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
+    if (messages.length === 0 && user?.name) {
+        const welcome = {
+            id: Date.now().toString(),
+            content: `Hi ${user.name}, welcome to GlobeAid AI! 🌍\n\nHow can I help you plan your next adventure?`,
+            isUser: false,
+            timestamp: new Date(),
+        };
+        setMessages([welcome]);
+    }
+}, [user]);
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -28,7 +33,17 @@ const DeepSeekChat = () => {
             timestamp: new Date(),
         };
 
-        setMessages(prev => [...prev, userMessage]);
+        const cleanMarkdown = (text) => {
+            return text
+                .replace(/^#+\s?/gm, '')               // remove headings like ### or ##
+                .replace(/\*\*(.*?)\*\*/g, '$1')       // bold
+                .replace(/\*(.*?)\*/g, '$1')           // italic
+                .replace(/^- /gm, '• ')                // lists
+                .replace(/\r?\n|\r/g, '\n');           // normalize line breaks
+        };
+
+        const updatedMessages = [...messages, userMessage];
+        setMessages(updatedMessages);
         setInput('');
         setLoading(true);
         setError(null);
@@ -37,16 +52,22 @@ const DeepSeekChat = () => {
             const res = await fetch('http://localhost:8000/api/deepseek/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMessage.content }),
+                body: JSON.stringify({
+                    messages: updatedMessages.map(msg => ({
+                        role: msg.isUser ? 'user' : 'assistant',
+                        content: msg.content
+                    })),
+                        userName: user?.name || 'Traveler' // Add this line
+                })
             });
 
             if (!res.ok) throw new Error('Network response was not ok');
 
-            const data = await res.json();
+            const data = await res.json();  
 
             const aiMessage = {
                 id: (Date.now() + 1).toString(),
-                content: data.reply,
+                content: cleanMarkdown(data.reply), // use the cleanup here
                 isUser: false,
                 timestamp: new Date(),
             };
@@ -60,6 +81,7 @@ const DeepSeekChat = () => {
         setLoading(false);
         inputRef.current?.focus();
     };
+
 
     const formatTime = (timestamp) => {
         return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -90,7 +112,7 @@ const DeepSeekChat = () => {
                 </div>
 
                 {/* Chat Messages */}
-                <div className="h-96 overflow-y-auto p-6 space-y-4 bg-slate-50/50">
+                <div className="min-h-[60vh] max-h-[75vh] overflow-y-auto p-6 space-y-4 bg-slate-50/50">
                     {messages.length === 0 && (
                         <div className="text-center py-12">
                             <Bot className="w-16 h-16 text-gray-300 mx-auto mb-4" />
@@ -102,23 +124,21 @@ const DeepSeekChat = () => {
                     {messages.map((message) => (
                         <div
                             key={message.id}
-                            className={`flex items-start space-x-3 animate-slide-in ${message.isUser ? 'flex-row-reverse space-x-reverse' : ''
-                                }`}
+                            className={`flex items-start space-x-3 animate-slide-in ${message.isUser ? 'flex-row-reverse space-x-reverse' : ''}`}
                         >
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.isUser
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-200 text-gray-600'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-gray-200 text-gray-600'
                                 }`}>
                                 {message.isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                             </div>
 
                             <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${message.isUser
-                                    ? 'bg-blue-600 text-white rounded-br-md'
-                                    : 'bg-white text-gray-800 shadow-sm border rounded-bl-md'
+                                ? 'bg-blue-600 text-white rounded-br-md'
+                                : 'bg-white text-gray-800 shadow-sm border rounded-bl-md'
                                 }`}>
                                 <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                                <p className={`text-xs mt-2 ${message.isUser ? 'text-blue-100' : 'text-gray-500'
-                                    }`}>
+                                <p className={`text-xs mt-2 ${message.isUser ? 'text-blue-100' : 'text-gray-500'}`}>
                                     {formatTime(message.timestamp)}
                                 </p>
                             </div>
@@ -142,8 +162,6 @@ const DeepSeekChat = () => {
                             <p className="text-red-700 text-sm">{error}</p>
                         </div>
                     )}
-
-                    <div ref={messagesEndRef} />
                 </div>
 
                 {/* Input Area */}

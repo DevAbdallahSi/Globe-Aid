@@ -5,14 +5,22 @@ const axios = require('axios');
 require('dotenv').config();
 
 router.post('/chat', async (req, res) => {
-    const { message } = req.body;
+    const { messages } = req.body;
+
+    const prompt = {
+        role: "system",
+        content: `You are GlobeAid, a friendly travel assistant... If the user shares their name (${userName}), greet them personally.`
+    };
+
+
 
     try {
         const response = await axios.post(
             'https://openrouter.ai/api/v1/chat/completions',
             {
                 model: 'deepseek/deepseek-chat-v3-0324',
-                messages: [{ role: 'user', content: message }],
+                messages: [prompt, ...messages],
+                temperature: 0.7,
             },
             {
                 headers: {

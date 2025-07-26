@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import travelImage from '../assets/images/image2.jpg';
+import axios from 'axios';
+// import EmojiPicker from 'emoji-picker-react';
 
 // Lazy load heavy components
 const AgentChatWidget = lazy(() => import('../components/AgentChatWidget'));
@@ -51,10 +53,14 @@ const LazySection = ({ children, fallback, className = "" }) => {
     );
 };
 
-const HomePage = () => {
+const HomePage = ({ isLoggedIn, user }) => {
     const [activeTab, setActiveTab] = useState('students');
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [showCountryPopup, setShowCountryPopup] = useState(false);
+    const [selectedCountry, setSelectedCountry] = useState(null);
+    const [showMoreCountries, setShowMoreCountries] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const audienceContent = {
         students: {
@@ -76,12 +82,97 @@ const HomePage = () => {
     };
 
     const countries = [
+        { flag: "🇵🇸", name: "Palestine", description: "Connect with Palestinian culture, resilience, and community life", id: "palestine" },
+        { flag: "🇱🇧", name: "Lebanon", description: "Experience Lebanese hospitality, heritage, and vibrant culture", id: "lebanon" },
         { flag: "🇺🇸", name: "United States", description: "Navigate American culture, education, and social norms", id: "usa" },
         { flag: "🇬🇧", name: "United Kingdom", description: "Discover British customs, university life, and traditions", id: "uk" },
-        { flag: "🇨🇦", name: "Canada", description: "Explore Canadian multiculturalism and community values", id: "canada" },
-        { flag: "🇦🇺", name: "Australia", description: "Learn about Aussie lifestyle and cultural diversity", id: "australia" },
-        { flag: "🇩🇪", name: "Germany", description: "Understand German efficiency, culture, and social systems", id: "germany" },
+        { flag: "🇫🇷", name: "France", description: "Immerse yourself in French language, lifestyle, and cultural etiquette", id: "france" },
         { flag: "🌍", name: "More Countries", description: "Explore our full list of supported destinations", id: "more" }
+    ];
+
+    const allCountries = [
+        { flag: "🇦🇫", name: "Afghanistan", id: "afghanistan" },
+        { flag: "🇦🇱", name: "Albania", id: "albania" },
+        { flag: "🇩🇿", name: "Algeria", id: "algeria" },
+        { flag: "🇦🇷", name: "Argentina", id: "argentina" },
+        { flag: "🇦🇲", name: "Armenia", id: "armenia" },
+        { flag: "🇦🇺", name: "Australia", id: "australia" },
+        { flag: "🇦🇹", name: "Austria", id: "austria" },
+        { flag: "🇦🇿", name: "Azerbaijan", id: "azerbaijan" },
+        { flag: "🇧🇭", name: "Bahrain", id: "bahrain" },
+        { flag: "🇧🇩", name: "Bangladesh", id: "bangladesh" },
+        { flag: "🇧🇾", name: "Belarus", id: "belarus" },
+        { flag: "🇧🇪", name: "Belgium", id: "belgium" },
+        { flag: "🇧🇷", name: "Brazil", id: "brazil" },
+        { flag: "🇧🇬", name: "Bulgaria", id: "bulgaria" },
+        { flag: "🇨🇦", name: "Canada", id: "canada" },
+        { flag: "🇨🇱", name: "Chile", id: "chile" },
+        { flag: "🇨🇳", name: "China", id: "china" },
+        { flag: "🇨🇴", name: "Colombia", id: "colombia" },
+        { flag: "🇭🇷", name: "Croatia", id: "croatia" },
+        { flag: "🇨🇿", name: "Czech Republic", id: "czech-republic" },
+        { flag: "🇩🇰", name: "Denmark", id: "denmark" },
+        { flag: "🇪🇨", name: "Ecuador", id: "ecuador" },
+        { flag: "🇪🇬", name: "Egypt", id: "egypt" },
+        { flag: "🇪🇪", name: "Estonia", id: "estonia" },
+        { flag: "🇫🇮", name: "Finland", id: "finland" },
+        { flag: "🇬🇪", name: "Georgia", id: "georgia" },
+        { flag: "🇩🇪", name: "Germany", id: "germany" },
+        { flag: "🇬🇭", name: "Ghana", id: "ghana" },
+        { flag: "🇬🇷", name: "Greece", id: "greece" },
+        { flag: "🇭🇺", name: "Hungary", id: "hungary" },
+        { flag: "🇮🇸", name: "Iceland", id: "iceland" },
+        { flag: "🇮🇳", name: "India", id: "india" },
+        { flag: "🇮🇩", name: "Indonesia", id: "indonesia" },
+        { flag: "🇮🇷", name: "Iran", id: "iran" },
+        { flag: "🇮🇶", name: "Iraq", id: "iraq" },
+        { flag: "🇮🇪", name: "Ireland", id: "ireland" },
+        { flag: "🇮🇹", name: "Italy", id: "italy" },
+        { flag: "🇯🇵", name: "Japan", id: "japan" },
+        { flag: "🇯🇴", name: "Jordan", id: "jordan" },
+        { flag: "🇰🇿", name: "Kazakhstan", id: "kazakhstan" },
+        { flag: "🇰🇪", name: "Kenya", id: "kenya" },
+        { flag: "🇰🇼", name: "Kuwait", id: "kuwait" },
+        { flag: "🇱🇻", name: "Latvia", id: "latvia" },
+        { flag: "🇱🇾", name: "Libya", id: "libya" },
+        { flag: "🇱🇹", name: "Lithuania", id: "lithuania" },
+        { flag: "🇱🇺", name: "Luxembourg", id: "luxembourg" },
+        { flag: "🇲🇾", name: "Malaysia", id: "malaysia" },
+        { flag: "🇲🇽", name: "Mexico", id: "mexico" },
+        { flag: "🇲🇦", name: "Morocco", id: "morocco" },
+        { flag: "🇳🇱", name: "Netherlands", id: "netherlands" },
+        { flag: "🇳🇿", name: "New Zealand", id: "new-zealand" },
+        { flag: "🇳🇬", name: "Nigeria", id: "nigeria" },
+        { flag: "🇳🇴", name: "Norway", id: "norway" },
+        { flag: "🇵🇰", name: "Pakistan", id: "pakistan" },
+        { flag: "🇵🇪", name: "Peru", id: "peru" },
+        { flag: "🇵🇭", name: "Philippines", id: "philippines" },
+        { flag: "🇵🇱", name: "Poland", id: "poland" },
+        { flag: "🇵🇹", name: "Portugal", id: "portugal" },
+        { flag: "🇶🇦", name: "Qatar", id: "qatar" },
+        { flag: "🇷🇴", name: "Romania", id: "romania" },
+        { flag: "🇷🇺", name: "Russia", id: "russia" },
+        { flag: "🇸🇦", name: "Saudi Arabia", id: "saudi-arabia" },
+        { flag: "🇷🇸", name: "Serbia", id: "serbia" },
+        { flag: "🇸🇬", name: "Singapore", id: "singapore" },
+        { flag: "🇸🇰", name: "Slovakia", id: "slovakia" },
+        { flag: "🇸🇮", name: "Slovenia", id: "slovenia" },
+        { flag: "🇿🇦", name: "South Africa", id: "south-africa" },
+        { flag: "🇰🇷", name: "South Korea", id: "south-korea" },
+        { flag: "🇪🇸", name: "Spain", id: "spain" },
+        { flag: "🇱🇰", name: "Sri Lanka", id: "sri-lanka" },
+        { flag: "🇸🇪", name: "Sweden", id: "sweden" },
+        { flag: "🇨🇭", name: "Switzerland", id: "switzerland" },
+        { flag: "🇸🇾", name: "Syria", id: "syria" },
+        { flag: "🇹🇭", name: "Thailand", id: "thailand" },
+        { flag: "🇹🇳", name: "Tunisia", id: "tunisia" },
+        { flag: "🇹🇷", name: "Turkey", id: "turkey" },
+        { flag: "🇦🇪", name: "UAE", id: "uae" },
+        { flag: "🇺🇦", name: "Ukraine", id: "ukraine" },
+        { flag: "🇺🇾", name: "Uruguay", id: "uruguay" },
+        { flag: "🇻🇪", name: "Venezuela", id: "venezuela" },
+        { flag: "🇻🇳", name: "Vietnam", id: "vietnam" },
+        { flag: "🇾🇪", name: "Yemen", id: "yemen" }
     ];
 
     const features = [
@@ -91,26 +182,67 @@ const HomePage = () => {
         { icon: "📚", title: "Personalized Learning", description: "Receive customized cultural learning paths based on your specific situation, goals, and interests." }
     ];
 
-    const testimonials = [
-        {
-            text: "GlobeAid helped me understand American university culture so much better. The AI assistant answered all my questions about campus life, and I finally felt confident joining study groups.",
-            author: "Maria Rodriguez",
-            role: "International Student, MIT",
-            avatar: "👩‍🎓"
-        },
-        {
-            text: "Moving to Germany for work was overwhelming until I found GlobeAid. The cultural insights and emotional support helped me adapt so much faster than I expected.",
-            author: "James Park",
-            role: "Software Engineer, Berlin",
-            avatar: "👨‍💼"
-        },
-        {
-            text: "As a refugee, understanding Canadian systems and culture was crucial. GlobeAid's AI assistant was patient and helpful, making my integration journey smoother.",
-            author: "Ahmed Hassan",
-            role: "New Canadian Resident",
-            avatar: "👨‍👩‍👧"
+    const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+    const [feedback, setFeedback] = useState({
+        author: '',
+        role: '',
+        text: ''
+    });
+    const [submitting, setSubmitting] = useState(false);
+    const [allFeedback, setAllFeedback] = useState([]);
+
+    useEffect(() => {
+        const fetchFeedback = async () => {
+            try {
+                const res = await axios.get('http://localhost:8000/api/feedback');
+                setAllFeedback(res.data);
+            } catch (err) {
+                console.error('Failed to load feedback:', err);
+            }
+        };
+
+        fetchFeedback();
+    }, []);
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const userFeedbackCount = allFeedback.filter(fb => fb.author === feedback.author).length;
+        if (userFeedbackCount >= 2) {
+            alert("You can only submit up to 2 feedback messages.");
+            return;
         }
-    ];
+
+
+        if (!feedback.text || !feedback.author) return;
+
+        setSubmitting(true);
+
+        try {
+            // Submit to backend
+            const res = await axios.post('http://localhost:8000/api/feedback', feedback);
+
+            // Append new feedback to the display list
+            setAllFeedback((prev) => [res.data, ...prev]);
+
+            // Reset form
+            setFeedback({
+                author: '',
+                role: '',
+                text: ''
+            });
+
+            setShowFeedbackForm(false);
+        } catch (err) {
+            console.error(err);
+            alert('Failed to submit feedback.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+
+
 
     useEffect(() => {
         const handleScroll = () => {
@@ -120,20 +252,360 @@ const HomePage = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const selectCountry = (countryId) => {
-        console.log('Selected country:', countryId);
-    };
-
-    const handleScroll = (e, targetId) => {
-        e.preventDefault();
-        const target = document.querySelector(targetId);
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
+    const selectCountry = (country) => {
+        if (country.id === "more") {
+            setShowMoreCountries(true);
+        } else {
+            setSelectedCountry(country);
+            setShowCountryPopup(true);
         }
     };
+
+    const filteredCountries = allCountries.filter(country =>
+        country.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const CountryPopup = ({ country, onClose }) => {
+        const popupRef = useRef(null);
+
+        // Close when clicking outside
+        useEffect(() => {
+            const handleClickOutside = (event) => {
+                if (popupRef.current && !popupRef.current.contains(event.target)) {
+                    onClose();
+                }
+            };
+
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => {
+                document.removeEventListener('mousedown', handleClickOutside);
+            };
+        }, [onClose]);
+
+        if (!country) return null;
+
+        // Country-specific data
+        const countryData = {
+            palestine: {
+                language: "Arabic is the primary language; English is understood in major cities and by youth.",
+                communication: "Use respectful titles like 'Abu' (father of) or 'Umm' (mother of) when referring to elders.",
+                culture: "Hospitality is a deep cultural value — guests are treated like family.",
+                etiquette: "Dress modestly, especially in conservative or religious areas (e.g. Hebron, East Jerusalem). Fridays are holy; many businesses close midday.",
+                dailyLife: [
+                    "Tap water isn't always safe to drink — bottled water is recommended.",
+                    "Cash is commonly used, especially outside cities — carry small bills in shekels.",
+                    "Electricity outages may occur, especially in Gaza and some West Bank towns."
+                ],
+                safety: [
+                    "Political tensions can rise quickly — avoid protests or large gatherings.",
+                    "Check local news or apps (like RedAlert) for area-specific updates.",
+                    "Entry/exit to different areas (e.g. Jerusalem, Ramallah) may involve checkpoints."
+                ],
+                healthcare: [
+                    "Basic healthcare is available, but private clinics offer better services.",
+                    "Pharmacies are widespread and provide over-the-counter meds without prescriptions."
+                ],
+                transport: [
+                    "Use 'service' taxis (shared taxis with fixed routes).",
+                    "Uber/Bolt are not available — local taxis or arranged transport are best."
+                ]
+            },
+            lebanon: {
+                language: "Arabic is official, but French and English are widely spoken.",
+                communication: "Lebanese people are expressive — personal space is less rigid, and conversations can be loud and animated.",
+                culture: "Hospitality and food are central to social life; expect generous and warm interactions.",
+                etiquette: "Dress is modern in Beirut but more conservative in rural areas. Greetings are important — use both hands and kisses on the cheek (when appropriate).",
+                dailyLife: [
+                    "Frequent power cuts — generators are commonly used in homes and businesses.",
+                    "The Lebanese lira fluctuates heavily — USD is widely accepted.",
+                    "Many basic services depend on private providers, such as water and electricity."
+                ],
+                safety: [
+                    "Avoid political protests and sensitive areas (like borders with Israel/Syria).",
+                    "Stay informed via local apps and embassy alerts.",
+                    "Petty theft is uncommon, but caution is still advised in crowded areas."
+                ],
+                healthcare: [
+                    "Private hospitals (especially in Beirut) offer excellent care but can be expensive.",
+                    "Emergency care is available, but travel insurance is recommended."
+                ],
+                transport: [
+                    "No real public transit system — use shared taxis or apps like Yango, Allo Taxi.",
+                    "Traffic in Beirut can be heavy; walking is best for short distances."
+                ]
+            },
+            france: {
+                language: "French is the official language and is expected in public interactions.",
+                communication: "Formality is important — use 'vous' for strangers and older people, and always greet with 'Bonjour'.",
+                culture: "The French take pride in food, art, and conversation — enjoy meals and social gatherings slowly and respectfully.",
+                etiquette: "Say hello and goodbye when entering or leaving shops. Avoid loud behavior in public spaces.",
+                dailyLife: [
+                    "Shops often close for lunch (12–2 PM), and early on Sundays.",
+                    "Tap water is safe to drink almost everywhere.",
+                    "Public restrooms are not always free or easy to find — keep change with you."
+                ],
+                safety: [
+                    "Pickpocketing is common in crowded tourist spots like the metro or Eiffel Tower.",
+                    "Protests (manifestations) can disrupt traffic and public transit — avoid large gatherings.",
+                    "Use official taxis or apps to avoid scams, especially at airports."
+                ],
+                healthcare: [
+                    "High-quality healthcare system — public (with Carte Vitale) and private services available.",
+                    "Pharmacies are well-regulated and pharmacists can provide health advice."
+                ],
+                transport: [
+                    "Metro and buses are efficient in cities (especially Paris).",
+                    "SNCF trains connect major cities — book early for better prices.",
+                    "Walking and cycling are common; bike-sharing services are widely available."
+                ]
+            },
+            uk: {
+                language: "English is spoken everywhere, though regional accents (e.g., Scottish, Welsh) may vary widely.",
+                communication: "British people are polite and reserved — expect indirect communication and dry humour.",
+                culture: "Traditions like tea time and pub culture are strong. Queuing and respecting personal space are very important.",
+                etiquette: "Be punctual. Always say 'please,' 'thank you,' and 'sorry.' Avoid overly personal questions early in relationships.",
+                dailyLife: [
+                    "Shops typically close early (5–6 PM) outside big cities; Sunday hours are limited.",
+                    "Contactless payments and Oyster cards are widely used.",
+                    "Tap water is safe to drink across the UK."
+                ],
+                safety: [
+                    "Generally very safe, but be alert in nightlife areas after dark.",
+                    "Emergency number is 999 or 112.",
+                    "Always check local travel updates during rail strikes or weather disruptions."
+                ],
+                healthcare: [
+                    "NHS offers free healthcare to residents and students. Tourists should have travel insurance.",
+                    "Walk-in clinics and GP appointments are common for non-emergencies."
+                ],
+                transport: [
+                    "Excellent train and underground networks; London has the Tube, Oyster cards for transport.",
+                    "Buses are reliable; check local apps (Citymapper, Trainline).",
+                    "Driving is on the **left** — roads are narrow in many towns."
+                ]
+            },
+            usa: {
+                language: "English is the primary language; Spanish is also widely spoken in many states.",
+                communication: "Friendly, casual, and direct. Small talk is common in public and customer service settings.",
+                culture: "Individualism and personal freedom are strong values. Cultural norms vary by region.",
+                etiquette: "Tipping is expected (15–20% in restaurants). Respect personal space and privacy.",
+                dailyLife: [
+                    "Credit/debit card use is nearly universal — cash is rarely needed.",
+                    "Open hours are flexible; many businesses operate 24/7.",
+                    "Alcohol and tobacco laws vary by state — the legal drinking age is 21."
+                ],
+                safety: [
+                    "Emergency number is 911.",
+                    "Gun laws vary — avoid confrontation and stay informed about local regulations.",
+                    "Urban areas are generally safe, but caution is advised at night in unfamiliar places."
+                ],
+                healthcare: [
+                    "There is no universal healthcare — medical care is expensive.",
+                    "Always have travel insurance; ER visits can cost thousands without it."
+                ],
+                transport: [
+                    "Public transport is limited outside major cities — car rental may be necessary.",
+                    "Rideshare apps like Uber and Lyft are widely used.",
+                    "Cross-country travel is often by domestic flights due to large distances."
+                ]
+            }
+        };
+
+
+        const data = countryData[country.id] || {
+            language: "Explore the rich cultural heritage, customs, and social norms of this country.",
+            communication: "Learn about local communication styles and etiquette.",
+            culture: "Discover the unique cultural aspects of this destination.",
+            etiquette: "Understand the do's and don'ts of social interactions.",
+            dailyLife: [
+                "Information about daily life and practical matters.",
+                "Tips for navigating local customs and services."
+            ],
+            safety: [
+                "General safety information and emergency contacts.",
+                "Local laws and customs to be aware of."
+            ],
+            healthcare: [
+                "Healthcare system overview and emergency services.",
+                "Pharmacy availability and insurance information."
+            ],
+            transport: [
+                "Public transportation options and tips.",
+                "Local taxi services and ride-sharing availability."
+            ]
+        };
+
+        return (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center px-4 pt-24 pb-8 md:pt-20 md:pb-12">
+                <div
+                    ref={popupRef}
+                    className="bg-white rounded-xl max-w-2xl w-full max-h-[78vh] md:max-h-[72vh] overflow-y-auto shadow-2xl animate-fadeInUp my-6"
+                >
+                    <div className="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+                        <h3 className="text-xl font-bold flex items-center gap-2">
+                            <span className="text-2xl">{country.flag}</span>
+                            {country.name}
+                        </h3>
+                        <button
+                            onClick={onClose}
+                            className="p-2 rounded-full hover:bg-gray-100"
+                            aria-label="Close popup"
+                        >
+                            ✕
+                        </button>
+                    </div>
+
+                    <div className="p-6">
+                        <div className="mb-6">
+                            <h4 className="text-lg font-semibold mb-2 text-indigo-600">Language & Communication</h4>
+                            <p className="text-gray-700 mb-2">{data.language}</p>
+                            <p className="text-gray-700">{data.communication}</p>
+                        </div>
+
+                        <div className="mb-6">
+                            <h4 className="text-lg font-semibold mb-2 text-indigo-600">Culture & Etiquette</h4>
+                            <p className="text-gray-700 mb-2">{data.culture}</p>
+                            <p className="text-gray-700">{data.etiquette}</p>
+                        </div>
+
+                        <div className="mb-6">
+                            <h4 className="text-lg font-semibold mb-2 text-indigo-600">Daily Life</h4>
+                            <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                                {data.dailyLife.map((item, index) => (
+                                    <li key={index}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <h4 className="text-lg font-semibold mb-2 text-indigo-600">Safety & Politics</h4>
+                                <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                                    {data.safety.map((item, index) => (
+                                        <li key={index}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 className="text-lg font-semibold mb-2 text-indigo-600">Healthcare</h4>
+                                <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                                    {data.healthcare.map((item, index) => (
+                                        <li key={index}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div className="md:col-span-2">
+                                <h4 className="text-lg font-semibold mb-2 text-indigo-600">Transport</h4>
+                                <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                                    {data.transport.map((item, index) => (
+                                        <li key={index}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="bg-indigo-50 rounded-lg p-4">
+                            <h4 className="text-lg font-semibold mb-3">Need specific advice about {country.name}?</h4>
+                            <Link
+                                to={`/chat?country=${country.id}`}
+                                className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-full inline-flex items-center gap-2 hover:shadow-lg transition-all"
+                                onClick={onClose}
+                            >
+                                Chat with our AI Guide
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const MoreCountriesPopup = ({ countries, onSelect, onClose }) => {
+        const popupRef = useRef(null);
+        const searchInputRef = useRef(null);
+        const [searchTerm, setSearchTerm] = useState('');
+
+        // Focus the input when the popup opens
+        useEffect(() => {
+            if (searchInputRef.current) {
+                searchInputRef.current.focus();
+            }
+        }, []);
+
+        // Close when clicking outside
+        useEffect(() => {
+            const handleClickOutside = (event) => {
+                if (popupRef.current && !popupRef.current.contains(event.target)) {
+                    onClose();
+                }
+            };
+
+            document.addEventListener('mousedown', handleClickOutside);
+            return () => {
+                document.removeEventListener('mousedown', handleClickOutside);
+            };
+        }, [onClose]);
+
+        const filteredCountries = countries.filter(country =>
+            country.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        return (
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-20">
+                <div
+                    ref={popupRef}
+                    className="bg-white rounded-xl max-w-md w-full max-h-[80vh] overflow-y-auto shadow-2xl animate-fadeInUp"
+                >
+                    <div className="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+                        <h3 className="text-xl font-bold">Select a Country</h3>
+                        <button
+                            onClick={onClose}
+                            className="p-2 rounded-full hover:bg-gray-100"
+                            aria-label="Close popup"
+                        >
+                            ✕
+                        </button>
+                    </div>
+
+                    <div className="p-4">
+                        <div className="relative mb-4">
+                            <input
+                                ref={searchInputRef}
+                                type="text"
+                                placeholder="Search countries..."
+                                className="w-full p-3 border rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') e.preventDefault();
+                                }}
+                            />
+                            <span className="absolute left-3 top-3 text-gray-400">🔍</span>
+                        </div>
+
+                        <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                            {filteredCountries.map(country => (
+                                <div
+                                    key={country.id}
+                                    onClick={() => {
+                                        onSelect(country);
+                                        setSearchTerm('');
+                                    }}
+                                    className="p-3 hover:bg-indigo-50 rounded-lg cursor-pointer flex items-center gap-3 transition-colors"
+                                >
+                                    <span className="text-2xl">{country.flag}</span>
+                                    <span>{country.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
 
     return (
         <div className="font-sans text-gray-800 min-h-screen overflow-x-hidden relative">
@@ -146,115 +618,16 @@ const HomePage = () => {
             </div>
 
             {/* Cultural Pattern Overlay */}
-            <div className="fixed inset-0 opacity-5 pointer-events-none z-0" 
-                 style={{
-                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3Ccircle cx='15' cy='15' r='2'/%3E%3Ccircle cx='45' cy='15' r='2'/%3E%3Ccircle cx='15' cy='45' r='2'/%3E%3Ccircle cx='45' cy='45' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                     backgroundSize: '60px 60px'
-                 }}>
+            <div className="fixed inset-0 opacity-5 pointer-events-none z-0"
+                style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3Ccircle cx='15' cy='15' r='2'/%3E%3Ccircle cx='45' cy='15' r='2'/%3E%3Ccircle cx='15' cy='45' r='2'/%3E%3Ccircle cx='45' cy='45' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                    backgroundSize: '60px 60px'
+                }}>
             </div>
 
-            {/* Navigation */}
-            <nav className={`fixed top-0 w-full z-50 py-2 sm:py-3 md:py-4 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur shadow-md border-b border-indigo-100' : 'bg-white/95 backdrop-blur border-b border-white/20'}`}>
-                <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 flex justify-between items-center">
-                    <div className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent animate-gradient">
-                        🌍 GlobeAid
-                    </div>
-                    
-                    {/* Desktop Menu */}
-                    <ul className="hidden md:flex items-center space-x-4 lg:space-x-6 xl:space-x-8">
-                        <li>
-                            <a
-                                href="#home"
-                                className="font-medium hover:text-indigo-500 hover:-translate-y-0.5 transition-all text-sm lg:text-base relative group"
-                                onClick={(e) => handleScroll(e, '#home')}
-                                aria-label="Navigate to Home"
-                            >
-                                Home
-                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 transition-all group-hover:w-full"></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="#about"
-                                className="font-medium hover:text-indigo-500 hover:-translate-y-0.5 transition-all text-sm lg:text-base relative group"
-                                onClick={(e) => handleScroll(e, '#about')}
-                                aria-label="Navigate to About Us"
-                            >
-                                About Us
-                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 transition-all group-hover:w-full"></span>
-                            </a>
-                        </li>
-                        <li>
-                            <Link
-                                to="/loginandregister"
-                                className="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white px-3 md:px-4 lg:px-6 py-2 rounded-full flex items-center gap-1 lg:gap-2 hover:-translate-y-0.5 hover:scale-105 transition-all shadow-lg hover:shadow-xl shadow-indigo-500/30 text-sm lg:text-base relative overflow-hidden group"
-                                aria-label="Login or Register"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <span className="text-xs lg:text-sm relative z-10">👤</span>
-                                <span className="hidden lg:inline relative z-10">Login/Register</span>
-                                <span className="lg:hidden relative z-10">Login</span>
-                            </Link>
-                        </li>
-                    </ul>
 
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden p-2 focus:outline-none"
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        aria-label="Toggle mobile menu"
-                    >
-                        <div className="w-5 h-5 sm:w-6 sm:h-6 flex flex-col justify-center space-y-1">
-                            <span className={`block h-0.5 w-full bg-gray-800 transition-all ${mobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-                            <span className={`block h-0.5 w-full bg-gray-800 transition-all ${mobileMenuOpen ? 'opacity-0' : ''}`}></span>
-                            <span className={`block h-0.5 w-full bg-gray-800 transition-all ${mobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
-                        </div>
-                    </button>
-                </div>
 
-                {/* Mobile Menu */}
-                {mobileMenuOpen && (
-                    <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur border-b border-gray-200 px-3 sm:px-4 py-4">
-                        <ul className="space-y-4">
-                            <li>
-                                <a
-                                    href="#home"
-                                    className="block font-medium hover:text-indigo-500 transition-all py-2"
-                                    onClick={(e) => {
-                                        handleScroll(e, '#home');
-                                        setMobileMenuOpen(false);
-                                    }}
-                                >
-                                    Home
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    href="#about"
-                                    className="block font-medium hover:text-indigo-500 transition-all py-2"
-                                    onClick={(e) => {
-                                        handleScroll(e, '#about');
-                                        setMobileMenuOpen(false);
-                                    }}
-                                >
-                                    About Us
-                                </a>
-                            </li>
-                            <li>
-                                <Link
-                                    to="/loginandregister"
-                                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-700 text-white px-4 py-3 rounded-full flex items-center justify-center gap-2 hover:shadow-lg transition-all"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                >
-                                    <span>👤</span> Login/Register
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-                )}
-            </nav>
-
-            <main className="pt-14 sm:pt-16 md:pt-20 relative z-10">
+            <main className="relative z-10">
                 {/* Hero Section */}
                 <section id="home" className="min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] flex items-center justify-center text-center text-white relative overflow-hidden">
                     <div className="absolute inset-0">
@@ -302,7 +675,7 @@ const HomePage = () => {
                                     key={country.id}
                                     className="bg-white/80 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 text-center shadow-lg hover:-translate-y-2 md:hover:-translate-y-3 hover:shadow-xl hover:shadow-indigo-500/20 hover:border-indigo-500 border-2 border-transparent transition-all cursor-pointer group animate-fadeInUp"
                                     style={{ animationDelay: `${index * 0.1}s` }}
-                                    onClick={() => selectCountry(country.id)}
+                                    onClick={() => selectCountry(country)}
                                     role="button"
                                     aria-label={`Select ${country.name}`}
                                 >
@@ -313,6 +686,31 @@ const HomePage = () => {
                             ))}
                         </div>
                     </div>
+
+                    {/* Country Info Popup */}
+                    {showCountryPopup && (
+                        <CountryPopup
+                            country={selectedCountry}
+                            onClose={() => setShowCountryPopup(false)}
+                        />
+                    )}
+
+                    {/* More Countries Popup */}
+                    {showMoreCountries && (
+                        <MoreCountriesPopup
+                            countries={allCountries}
+                            onSelect={(country) => {
+                                setShowMoreCountries(false);
+                                setSelectedCountry(country);
+                                setShowCountryPopup(true);
+                                setSearchTerm('');
+                            }}
+                            onClose={() => {
+                                setShowMoreCountries(false);
+                                setSearchTerm('');
+                            }}
+                        />
+                    )}
                 </LazySection>
 
                 {/* Features Section */}
@@ -327,7 +725,7 @@ const HomePage = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 mt-6 sm:mt-8 md:mt-12">
                             {features.map((feature, index) => (
                                 <div key={index} className="bg-white/80 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 lg:p-10 text-center shadow-xl hover:-translate-y-2 transition-all relative overflow-hidden group animate-fadeInUp"
-                                     style={{ animationDelay: `${index * 0.1}s` }}>
+                                    style={{ animationDelay: `${index * 0.1}s` }}>
                                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500"></div>
                                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     <div className="text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-4 md:mb-6 group-hover:scale-110 transition-transform relative z-10">{feature.icon}</div>
@@ -366,31 +764,133 @@ const HomePage = () => {
                 </LazySection>
 
                 {/* Testimonials Section */}
+                {/* Testimonials Section with Slider */}
                 <LazySection
                     fallback={<SectionSkeleton height="h-96" />}
                     className="bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 py-10 sm:py-16 md:py-20 text-white relative"
                 >
                     <div className="absolute inset-0 bg-black/10"></div>
                     <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-3 sm:mb-4">What Our Community Says</h2>
-                        <p className="text-sm sm:text-base md:text-lg lg:text-xl opacity-90 text-center mb-8 sm:mb-12 md:mb-16 max-w-4xl mx-auto leading-relaxed">Real stories from people who found their place with GlobeAid</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mt-6 sm:mt-8 md:mt-12">
-                            {testimonials.map((testimonial, index) => (
-                                <div key={index} className="bg-white/10 backdrop-blur rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 border border-white/20 hover:-translate-y-2 transition-all group animate-fadeInUp"
-                                     style={{ animationDelay: `${index * 0.1}s` }}>
-                                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl md:rounded-2xl"></div>
-                                    <p className="italic mb-3 sm:mb-4 md:mb-6 text-sm sm:text-base md:text-lg leading-relaxed relative z-10">{testimonial.text}</p>
-                                    <div className="flex items-center gap-2 sm:gap-3 md:gap-4 relative z-10">
-                                        <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white/20 flex items-center justify-center text-lg sm:text-xl md:text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">{testimonial.avatar}</div>
-                                        <div className="min-w-0">
-                                            <h4 className="font-semibold text-xs sm:text-sm md:text-base">{testimonial.author}</h4>
-                                            <p className="text-xs sm:text-xs md:text-sm opacity-80">{testimonial.role}</p>
+                        {/* Header */}
+                        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-3 sm:mb-4">
+                            What Our Community Says
+                        </h2>
+                        <p className="text-sm sm:text-base md:text-lg lg:text-xl opacity-90 text-center mb-8 sm:mb-12 md:mb-8 max-w-4xl mx-auto leading-relaxed">
+                            Real stories from people who found their place with GlobeAid
+                        </p>
+
+                        {/* Slider Container */}
+                        <div className="relative mt-6 sm:mt-8 md:mt-12">
+                            {/* Navigation Buttons */}
+                            <button
+                                onClick={() => {
+                                    const slider = document.getElementById('testimonials-slider');
+                                    slider.scrollBy({ left: -320, behavior: 'smooth' });
+                                }}
+                                className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-3 transition-all duration-300 hover:scale-110 border border-white/30"
+                                aria-label="Previous testimonials"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    const slider = document.getElementById('testimonials-slider');
+                                    slider.scrollBy({ left: 320, behavior: 'smooth' });
+                                }}
+                                className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-3 transition-all duration-300 hover:scale-110 border border-white/30"
+                                aria-label="Next testimonials"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+
+                            {/* Slider Track */}
+                            <div
+                                id="testimonials-slider"
+                                className="flex gap-6 overflow-x-auto scroll-smooth pb-4 px-12 pt-8 md:pt-4 scrollbar-hide"
+                                style={{
+                                    scrollbarWidth: 'none',
+                                    msOverflowStyle: 'none',
+                                    WebkitScrollbar: { display: 'none' }
+                                }}
+                            >
+
+                                {allFeedback.map((fb, index) => (
+                                    <div
+                                        key={index}
+                                        className="bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/20 transition-all duration-300 hover:bg-white/15 hover:-translate-y-2 hover:shadow-2xl relative flex flex-col justify-between min-w-[300px] max-w-[300px] min-h-[320px] overflow-hidden flex-shrink-0"
+                                    >
+                                        {/* Feedback Text */}
+                                        <p className="italic text-sm sm:text-base leading-relaxed mb-6 flex-grow break-words overflow-wrap-anywhere">
+                                            "{fb.text.length > 180 ? fb.text.slice(0, 180) + '…' : fb.text}"
+                                        </p>
+
+                                        {/* Author Info */}
+                                        <div className="flex items-center gap-4 mt-auto">
+                                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/30 to-white/10 flex items-center justify-center text-xl border border-white/20 flex-shrink-0">
+                                                {fb.avatar || '👤'}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <h4 className="font-semibold text-base break-words">{fb.author}</h4>
+                                                <p className="text-sm text-white/80 break-words">{fb.role}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Card Number Indicator */}
+                                        <div className="absolute top-4 right-4 bg-white/20 rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold">
+                                            {index + 1}
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+
+                                {/* Add more feedback prompt card */}
+                                {isLoggedIn && (
+                                    <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 md:p-8 border-2 border-dashed border-white/30 transition-all duration-300 hover:bg-white/10 hover:border-white/50 relative flex flex-col items-center justify-center min-w-[300px] max-w-[300px] min-h-[320px] overflow-hidden flex-shrink-0 cursor-pointer"
+                                        onClick={() => setShowFeedbackForm(true)}
+                                    >
+                                        <div className="text-6xl mb-4 opacity-60">✍️</div>
+                                        <h4 className="font-semibold text-lg mb-2 text-center">Share Your Story</h4>
+                                        <p className="text-sm text-white/80 text-center leading-relaxed">
+                                            Help others by sharing your experience with GlobeAid
+                                        </p>
+                                        <div className="mt-4 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-sm font-medium transition-colors">
+                                            Add Feedback
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Scroll Indicator Dots */}
+                            <div className="flex justify-center mt-8 gap-2">
+                                {Array.from({ length: Math.min(allFeedback.length, 5) }, (_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => {
+                                            const slider = document.getElementById('testimonials-slider');
+                                            slider.scrollTo({ left: i * 320, behavior: 'smooth' });
+                                        }}
+                                        className="w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-colors"
+                                        aria-label={`Go to testimonial ${i + 1}`}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
+
+                    {/* Fixed Add Feedback Button (Alternative) */}
+                    {isLoggedIn && (
+                        <button
+                            onClick={() => setShowFeedbackForm(true)}
+                            className="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-3 rounded-full shadow-xl hover:scale-105 hover:shadow-2xl transition-all duration-300 border border-white/20"
+                            aria-label="Add Feedback"
+                        >
+                            ✍️ Add Feedback
+                        </button>
+                    )}
                 </LazySection>
 
                 {/* About Section */}
@@ -413,6 +913,62 @@ const HomePage = () => {
                         <AgentChatWidget />
                     </div>
                 </Suspense>
+                {showFeedbackForm && (
+                    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 sm:px-6">
+                        <form
+                            onSubmit={handleSubmit}
+                            className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 md:p-8 border border-gray-200 animate-fadeInUp"
+                        >
+                            <h2 className="text-xl font-bold text-indigo-700 mb-4 text-center">We’d Love Your Feedback ✍️</h2>
+
+                            <div className="space-y-4">
+                                <input
+                                    type="text"
+                                    placeholder="Your Name"
+                                    className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                                    value={feedback.author}
+                                    onChange={(e) => setFeedback({ ...feedback, author: e.target.value })}
+                                    required
+                                />
+
+                                <input
+                                    type="text"
+                                    placeholder="Your Role (optional)"
+                                    className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                                    value={feedback.role}
+                                    onChange={(e) => setFeedback({ ...feedback, role: e.target.value })}
+                                />
+
+                                <textarea
+                                    placeholder="Your feedback..."
+                                    className="w-full px-4 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-500"
+                                    rows={4}
+                                    value={feedback.text}
+                                    onChange={(e) => setFeedback({ ...feedback, text: e.target.value })}
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex justify-between items-center mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowFeedbackForm(false)}
+                                    className="text-gray-500 hover:text-gray-700 transition"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={submitting}
+                                    className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-5 py-2 rounded-full font-semibold hover:scale-105 transition-all disabled:opacity-50"
+                                >
+                                    {submitting ? 'Submitting...' : 'Submit'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+
             </main>
 
             <style>{`
@@ -463,7 +1019,7 @@ const HomePage = () => {
                 }
                 
                 .animate-fadeInUp {
-                    animation: fadeInUp 1s ease-out forwards;
+                    animation: fadeInUp 0.3s ease-out forwards;
                     opacity: 0;
                 }
                 
@@ -495,20 +1051,20 @@ const HomePage = () => {
 
                 /* Enhanced scrollbar */
                 ::-webkit-scrollbar {
-                    width: 8px;
+                    width: 6px;
                 }
                 
                 ::-webkit-scrollbar-track {
-                    background: linear-gradient(to bottom, #f1f5f9, #e2e8f0);
+                    background: rgba(0, 0, 0, 0.05);
                 }
                 
                 ::-webkit-scrollbar-thumb {
-                    background: linear-gradient(to bottom, #6366f1, #8b5cf6);
-                    border-radius: 4px;
+                    background-color: rgba(79, 70, 229, 0.5);
+                    border-radius: 3px;
                 }
                 
                 ::-webkit-scrollbar-thumb:hover {
-                    background: linear-gradient(to bottom, #4f46e5, #7c3aed);
+                    background-color: rgba(79, 70, 229, 0.7);
                 }
 
                 /* Custom breakpoints */

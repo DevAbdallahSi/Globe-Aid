@@ -7,6 +7,9 @@ const connectDB = require('./config/mongoose.config');
 const deepseekRoutes = require('./routes/deepseek.route');
 const chatRoutes = require('./routes/messages.route');
 const Message = require('./models/Message');
+const feedbackRoutes = require('./routes/feedback.route');
+
+
 
 // Load .env config
 dotenv.config();
@@ -31,6 +34,10 @@ app.use('/api/messages', chatRoutes);
 app.use('/api/services', require('./routes/serviceRoutes.route'));
 
 app.get('/', (req, res) => res.send('API running...'));
+
+app.use('/api/feedback', feedbackRoutes);
+app.use('/api/services',require('./routes/serviceRoutes.route'))
+
 
 // Create HTTP server
 const server = http.createServer(app);

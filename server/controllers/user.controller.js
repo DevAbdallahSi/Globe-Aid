@@ -96,10 +96,26 @@ const updateUser = async (req, res) => {
     }
 };
 
+const deleteUser = async (req, res) => {
+    try {
+        // Ensure the user can only delete their own account
+        if (req.user.id !== req.params.id) {
+            return res.status(403).json({ error: 'Unauthorized action' });
+        }
+
+        await User.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: 'Account deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting user:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
 // Export all controller functions
 module.exports = {
     registerUser,
     loginUser,
     getMe,
     updateUser,
+    deleteUser
 };

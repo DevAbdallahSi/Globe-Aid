@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import AgentChatWidget from '../components/AgentChatWidget';
 import ChatBox from '../components/ChatBox';
+import { User } from 'lucide-react';
+
 
 
 const UserDashboard = ({ user }) => {
@@ -198,11 +200,10 @@ const UserDashboard = ({ user }) => {
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
                             <div className="relative">
-                                <img
-                                    src={user.avatar}
-                                    alt={user.name}
-                                    className="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-lg"
-                                />
+                                <div className="w-16 h-16 rounded-2xl border-2 border-white shadow-lg bg-white flex items-center justify-center">
+                                    <User className="w-8 h-8 text-gray-600" />
+                                </div>
+
                                 <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white ${isOnline ? 'bg-green-500' : 'bg-gray-400'} flex items-center justify-center`}>
                                     {isOnline ? <Wifi className="w-3 h-3 text-white" /> : <WifiOff className="w-3 h-3 text-white" />}
                                 </div>
@@ -240,6 +241,7 @@ const UserDashboard = ({ user }) => {
                             <MessageCircle className="w-8 h-8 md:w-12 md:h-12 group-hover:scale-110 transition-transform" />
                         </div>
                     </button>
+                    
 
                     <button onClick={handleOfferClick}
                         className="group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">

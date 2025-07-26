@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
-
 import Navbar from './components/NavBar';
 import AuthComponent from './pages/LoginRegister';
 import HomePage from './pages/HomePage';
@@ -30,6 +29,7 @@ const App = () => {
                 const res = await axios.get('http://localhost:8000/api/users/me', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+                console.log(res.data)
                 setUser(res.data);
                 setIsLoggedIn(true);
             } catch (err) {
@@ -77,7 +77,7 @@ const App = () => {
                 {/* Routes for different pages */}
                 <Routes>
                     <Route path="/loginandregister" element={<AuthComponent onLogin={handleLogin} />} />
-                    <Route path="/" element={<HomePage />} />
+                    <Route path="/" element={<HomePage isLoggedIn={isLoggedIn} user={user} />} />
                     <Route
                         path="/chat/:receiverId"
                         element={
@@ -113,7 +113,7 @@ const App = () => {
                         path="/deepseek"
                         element={
                             isLoggedIn && user ? (
-                                <DeepSeekChat />
+                                <DeepSeekChat user={user} />
                             ) : (
                                 <AuthComponent onLogin={handleLogin} />
                             )
