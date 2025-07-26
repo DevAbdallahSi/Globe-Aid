@@ -25,7 +25,7 @@ const AuthComponent = () => {
         'Brazil', 'Bulgaria', 'Canada', 'Chile', 'China', 'Colombia', 'Croatia',
         'Czech Republic', 'Denmark', 'Ecuador', 'Egypt', 'Estonia', 'Finland',
         'France', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Hungary', 'Iceland',
-        'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy',
+        'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Italy',
         'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kuwait', 'Latvia', 'Lebanon',
         'Libya', 'Lithuania', 'Luxembourg', 'Malaysia', 'Mexico', 'Morocco',
         'Netherlands', 'New Zealand', 'Nigeria', 'Norway', 'Pakistan', 'Palestine',
