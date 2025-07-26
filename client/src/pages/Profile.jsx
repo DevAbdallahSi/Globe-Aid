@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {User, Mail, Globe, MapPin, Settings, Clock,Trash2, Edit3, Save, X} from 'lucide-react';
+import { User, Mail, Globe, MapPin, Settings, Clock, Trash2, Edit3, Save, X } from 'lucide-react';
 import AgentChatWidget from '../components/AgentChatWidget';
+import { useNavigate } from 'react-router-dom';
 
 
 const ProfilePage = () => {
@@ -9,6 +10,7 @@ const ProfilePage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [profileData, setProfileData] = useState(null);
     const [editData, setEditData] = useState(null);
+    const navigate = useNavigate();
 
     const timeBankStats = {
         hoursEarned: 47.5,
@@ -32,10 +34,11 @@ const ProfilePage = () => {
 
                 const user = res.data;
                 const formatted = {
+                    _id: user._id,
                     name: user.name || '',
                     email: user.email || '',
                     language: user.language || 'English',
-                    country: user.country || 'United States',
+                    country: user.country ,
                     preferences: user.preferences || {
                         emailNotifications: true,
                         smsNotifications: false,
@@ -96,9 +99,23 @@ const ProfilePage = () => {
         }));
     };
 
-    const handleDeleteAccount = () => {
-        console.log('Account deletion requested');
-        setShowDeleteModal(false);
+    const handleDeleteAccount = async () => {
+        try {
+            console.log("Deleting user ID:", profileData?._id);
+            await axios.delete(`http://localhost:8000/api/users/${profileData._id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
+
+            // Clean up and redirect
+            localStorage.removeItem('token');
+            setShowDeleteModal(false);
+            navigate('/');
+        } catch (err) {
+            console.error('Failed to delete account:', err);
+            alert('Failed to delete account. Please try again.');
+        }
     };
 
     if (!profileData || !editData) return <div className="p-6 text-center">Loading profile...</div>;

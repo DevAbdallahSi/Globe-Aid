@@ -7,6 +7,9 @@ const connectDB = require('./config/mongoose.config');
 const deepseekRoutes = require('./routes/deepseek.route');
 const chatRoutes = require('./routes/messages.route');
 const Message = require('./models/Message'); // <-- Import your Message model
+const feedbackRoutes = require('./routes/feedback.route');
+
+
 
 // Load environment variables
 dotenv.config();
@@ -28,7 +31,7 @@ app.use(express.json());
 app.use('/api/deepseek', deepseekRoutes);
 app.use('/api/users', require('./routes/userRoutes.route'));
 app.use('/api/messages', chatRoutes);
-
+app.use('/api/feedback', feedbackRoutes);
 app.use('/api/services',require('./routes/serviceRoutes.route'))
 
 // Root Route
