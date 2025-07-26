@@ -29,6 +29,8 @@ app.use('/api/deepseek', deepseekRoutes);
 app.use('/api/users', require('./routes/userRoutes.route'));
 app.use('/api/messages', chatRoutes);
 
+app.use('/api/services',require('./routes/serviceRoutes.route'))
+
 // Root Route
 app.get('/', (req, res) => {
     res.send('API running...');
