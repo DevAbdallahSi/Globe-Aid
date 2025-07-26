@@ -55,6 +55,10 @@ const HomePage = () => {
     const [activeTab, setActiveTab] = useState('students');
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [showCountryPopup, setShowCountryPopup] = useState(false);
+    const [selectedCountry, setSelectedCountry] = useState(null);
+    const [showMoreCountries, setShowMoreCountries] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const audienceContent = {
         students: {
@@ -76,12 +80,97 @@ const HomePage = () => {
     };
 
     const countries = [
+        { flag: "🇵🇸", name: "Palestine", description: "Connect with Palestinian culture, resilience, and community life", id: "palestine" },
+        { flag: "🇱🇧", name: "Lebanon", description: "Experience Lebanese hospitality, heritage, and vibrant culture", id: "lebanon" },
         { flag: "🇺🇸", name: "United States", description: "Navigate American culture, education, and social norms", id: "usa" },
         { flag: "🇬🇧", name: "United Kingdom", description: "Discover British customs, university life, and traditions", id: "uk" },
         { flag: "🇫🇷", name: "France", description: "Immerse yourself in French language, lifestyle, and cultural etiquette", id: "france" },
-        { flag: "🇱🇧", name: "Lebanon", description: "Experience Lebanese hospitality, heritage, and vibrant culture", id: "lebanon" },
-        { flag: "🇵🇸", name: "Palestine", description: "Connect with Palestinian culture, resilience, and community life", id: "palestine" },
         { flag: "🌍", name: "More Countries", description: "Explore our full list of supported destinations", id: "more" }
+    ];
+
+    const allCountries = [
+        { flag: "🇦🇫", name: "Afghanistan", id: "afghanistan" },
+        { flag: "🇦🇱", name: "Albania", id: "albania" },
+        { flag: "🇩🇿", name: "Algeria", id: "algeria" },
+        { flag: "🇦🇷", name: "Argentina", id: "argentina" },
+        { flag: "🇦🇲", name: "Armenia", id: "armenia" },
+        { flag: "🇦🇺", name: "Australia", id: "australia" },
+        { flag: "🇦🇹", name: "Austria", id: "austria" },
+        { flag: "🇦🇿", name: "Azerbaijan", id: "azerbaijan" },
+        { flag: "🇧🇭", name: "Bahrain", id: "bahrain" },
+        { flag: "🇧🇩", name: "Bangladesh", id: "bangladesh" },
+        { flag: "🇧🇾", name: "Belarus", id: "belarus" },
+        { flag: "🇧🇪", name: "Belgium", id: "belgium" },
+        { flag: "🇧🇷", name: "Brazil", id: "brazil" },
+        { flag: "🇧🇬", name: "Bulgaria", id: "bulgaria" },
+        { flag: "🇨🇦", name: "Canada", id: "canada" },
+        { flag: "🇨🇱", name: "Chile", id: "chile" },
+        { flag: "🇨🇳", name: "China", id: "china" },
+        { flag: "🇨🇴", name: "Colombia", id: "colombia" },
+        { flag: "🇭🇷", name: "Croatia", id: "croatia" },
+        { flag: "🇨🇿", name: "Czech Republic", id: "czech-republic" },
+        { flag: "🇩🇰", name: "Denmark", id: "denmark" },
+        { flag: "🇪🇨", name: "Ecuador", id: "ecuador" },
+        { flag: "🇪🇬", name: "Egypt", id: "egypt" },
+        { flag: "🇪🇪", name: "Estonia", id: "estonia" },
+        { flag: "🇫🇮", name: "Finland", id: "finland" },
+        { flag: "🇬🇪", name: "Georgia", id: "georgia" },
+        { flag: "🇩🇪", name: "Germany", id: "germany" },
+        { flag: "🇬🇭", name: "Ghana", id: "ghana" },
+        { flag: "🇬🇷", name: "Greece", id: "greece" },
+        { flag: "🇭🇺", name: "Hungary", id: "hungary" },
+        { flag: "🇮🇸", name: "Iceland", id: "iceland" },
+        { flag: "🇮🇳", name: "India", id: "india" },
+        { flag: "🇮🇩", name: "Indonesia", id: "indonesia" },
+        { flag: "🇮🇷", name: "Iran", id: "iran" },
+        { flag: "🇮🇶", name: "Iraq", id: "iraq" },
+        { flag: "🇮🇪", name: "Ireland", id: "ireland" },
+        { flag: "🇮🇹", name: "Italy", id: "italy" },
+        { flag: "🇯🇵", name: "Japan", id: "japan" },
+        { flag: "🇯🇴", name: "Jordan", id: "jordan" },
+        { flag: "🇰🇿", name: "Kazakhstan", id: "kazakhstan" },
+        { flag: "🇰🇪", name: "Kenya", id: "kenya" },
+        { flag: "🇰🇼", name: "Kuwait", id: "kuwait" },
+        { flag: "🇱🇻", name: "Latvia", id: "latvia" },
+        { flag: "🇱🇾", name: "Libya", id: "libya" },
+        { flag: "🇱🇹", name: "Lithuania", id: "lithuania" },
+        { flag: "🇱🇺", name: "Luxembourg", id: "luxembourg" },
+        { flag: "🇲🇾", name: "Malaysia", id: "malaysia" },
+        { flag: "🇲🇽", name: "Mexico", id: "mexico" },
+        { flag: "🇲🇦", name: "Morocco", id: "morocco" },
+        { flag: "🇳🇱", name: "Netherlands", id: "netherlands" },
+        { flag: "🇳🇿", name: "New Zealand", id: "new-zealand" },
+        { flag: "🇳🇬", name: "Nigeria", id: "nigeria" },
+        { flag: "🇳🇴", name: "Norway", id: "norway" },
+        { flag: "🇵🇰", name: "Pakistan", id: "pakistan" },
+        { flag: "🇵🇪", name: "Peru", id: "peru" },
+        { flag: "🇵🇭", name: "Philippines", id: "philippines" },
+        { flag: "🇵🇱", name: "Poland", id: "poland" },
+        { flag: "🇵🇹", name: "Portugal", id: "portugal" },
+        { flag: "🇶🇦", name: "Qatar", id: "qatar" },
+        { flag: "🇷🇴", name: "Romania", id: "romania" },
+        { flag: "🇷🇺", name: "Russia", id: "russia" },
+        { flag: "🇸🇦", name: "Saudi Arabia", id: "saudi-arabia" },
+        { flag: "🇷🇸", name: "Serbia", id: "serbia" },
+        { flag: "🇸🇬", name: "Singapore", id: "singapore" },
+        { flag: "🇸🇰", name: "Slovakia", id: "slovakia" },
+        { flag: "🇸🇮", name: "Slovenia", id: "slovenia" },
+        { flag: "🇿🇦", name: "South Africa", id: "south-africa" },
+        { flag: "🇰🇷", name: "South Korea", id: "south-korea" },
+        { flag: "🇪🇸", name: "Spain", id: "spain" },
+        { flag: "🇱🇰", name: "Sri Lanka", id: "sri-lanka" },
+        { flag: "🇸🇪", name: "Sweden", id: "sweden" },
+        { flag: "🇨🇭", name: "Switzerland", id: "switzerland" },
+        { flag: "🇸🇾", name: "Syria", id: "syria" },
+        { flag: "🇹🇭", name: "Thailand", id: "thailand" },
+        { flag: "🇹🇳", name: "Tunisia", id: "tunisia" },
+        { flag: "🇹🇷", name: "Turkey", id: "turkey" },
+        { flag: "🇦🇪", name: "UAE", id: "uae" },
+        { flag: "🇺🇦", name: "Ukraine", id: "ukraine" },
+        { flag: "🇺🇾", name: "Uruguay", id: "uruguay" },
+        { flag: "🇻🇪", name: "Venezuela", id: "venezuela" },
+        { flag: "🇻🇳", name: "Vietnam", id: "vietnam" },
+        { flag: "🇾🇪", name: "Yemen", id: "yemen" }
     ];
 
     const features = [
@@ -120,8 +209,13 @@ const HomePage = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const selectCountry = (countryId) => {
-        console.log('Selected country:', countryId);
+    const selectCountry = (country) => {
+        if (country.id === "more") {
+            setShowMoreCountries(true);
+        } else {
+            setSelectedCountry(country);
+            setShowCountryPopup(true);
+        }
     };
 
     const handleScroll = (e, targetId) => {
@@ -134,6 +228,252 @@ const HomePage = () => {
             });
         }
     };
+
+    const filteredCountries = allCountries.filter(country =>
+        country.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const CountryPopup = ({ country, onClose }) => {
+    const popupRef = useRef(null);
+
+    // Close when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (popupRef.current && !popupRef.current.contains(event.target)) {
+                onClose();
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [onClose]);
+
+    if (!country) return null;
+
+    // Country-specific data
+    const countryData = {
+        palestine: {
+            language: "Arabic is the primary language; English is understood in major cities and by youth.",
+            communication: "Use respectful titles like 'Abu' (father of) or 'Umm' (mother of) when referring to elders.",
+            culture: "Hospitality is a deep cultural value — guests are treated like family.",
+            etiquette: "Dress modestly, especially in conservative or religious areas (e.g. Hebron, East Jerusalem). Fridays are holy; many businesses close midday.",
+            dailyLife: [
+                "Tap water isn't always safe to drink — bottled water is recommended.",
+                "Cash is commonly used, especially outside cities — carry small bills in shekels.",
+                "Electricity outages may occur, especially in Gaza and some West Bank towns."
+            ],
+            safety: [
+                "Political tensions can rise quickly — avoid protests or large gatherings.",
+                "Check local news or apps (like RedAlert) for area-specific updates.",
+                "Entry/exit to different areas (e.g. Jerusalem, Ramallah) may involve checkpoints."
+            ],
+            healthcare: [
+                "Basic healthcare is available, but private clinics offer better services.",
+                "Pharmacies are widespread and provide over-the-counter meds without prescriptions."
+            ],
+            transport: [
+                "Use 'service' taxis (shared taxis with fixed routes).",
+                "Uber/Bolt are not available — local taxis or arranged transport are best."
+            ]
+        },
+        // ... other country data (usa, uk, france, lebanon) ...
+    };
+
+    const data = countryData[country.id] || {
+        language: "Explore the rich cultural heritage, customs, and social norms of this country.",
+        communication: "Learn about local communication styles and etiquette.",
+        culture: "Discover the unique cultural aspects of this destination.",
+        etiquette: "Understand the do's and don'ts of social interactions.",
+        dailyLife: [
+            "Information about daily life and practical matters.",
+            "Tips for navigating local customs and services."
+        ],
+        safety: [
+            "General safety information and emergency contacts.",
+            "Local laws and customs to be aware of."
+        ],
+        healthcare: [
+            "Healthcare system overview and emergency services.",
+            "Pharmacy availability and insurance information."
+        ],
+        transport: [
+            "Public transportation options and tips.",
+            "Local taxi services and ride-sharing availability."
+        ]
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center px-4 pt-24 pb-8 md:pt-20 md:pb-12">
+            <div 
+                ref={popupRef}
+                className="bg-white rounded-xl max-w-2xl w-full max-h-[78vh] md:max-h-[72vh] overflow-y-auto shadow-2xl animate-fadeInUp my-6"
+            >
+                <div className="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+                    <h3 className="text-xl font-bold flex items-center gap-2">
+                        <span className="text-2xl">{country.flag}</span>
+                        {country.name}
+                    </h3>
+                    <button 
+                        onClick={onClose}
+                        className="p-2 rounded-full hover:bg-gray-100"
+                        aria-label="Close popup"
+                    >
+                        ✕
+                    </button>
+                </div>
+                
+                <div className="p-6">
+                    <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-2 text-indigo-600">Language & Communication</h4>
+                        <p className="text-gray-700 mb-2">{data.language}</p>
+                        <p className="text-gray-700">{data.communication}</p>
+                    </div>
+                    
+                    <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-2 text-indigo-600">Culture & Etiquette</h4>
+                        <p className="text-gray-700 mb-2">{data.culture}</p>
+                        <p className="text-gray-700">{data.etiquette}</p>
+                    </div>
+                    
+                    <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-2 text-indigo-600">Daily Life</h4>
+                        <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                            {data.dailyLife.map((item, index) => (
+                                <li key={index}>{item}</li>
+                            ))}
+                        </ul>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h4 className="text-lg font-semibold mb-2 text-indigo-600">Safety & Politics</h4>
+                            <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                                {data.safety.map((item, index) => (
+                                    <li key={index}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h4 className="text-lg font-semibold mb-2 text-indigo-600">Healthcare</h4>
+                            <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                                {data.healthcare.map((item, index) => (
+                                    <li key={index}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                        
+                        <div className="md:col-span-2">
+                            <h4 className="text-lg font-semibold mb-2 text-indigo-600">Transport</h4>
+                            <ul className="list-disc pl-5 space-y-1 text-gray-700">
+                                {data.transport.map((item, index) => (
+                                    <li key={index}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-indigo-50 rounded-lg p-4">
+                        <h4 className="text-lg font-semibold mb-3">Need specific advice about {country.name}?</h4>
+                        <Link 
+                            to={`/chat?country=${country.id}`}
+                            className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-full inline-flex items-center gap-2 hover:shadow-lg transition-all"
+                            onClick={onClose}
+                        >
+                            Chat with our AI Guide
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const MoreCountriesPopup = ({ countries, onSelect, onClose }) => {
+    const popupRef = useRef(null);
+    const searchInputRef = useRef(null);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Focus the input when the popup opens
+    useEffect(() => {
+        if (searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
+    }, []);
+
+    // Close when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (popupRef.current && !popupRef.current.contains(event.target)) {
+                onClose();
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [onClose]);
+
+    const filteredCountries = countries.filter(country =>
+        country.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    return (
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4 pt-20">
+            <div 
+                ref={popupRef}
+                className="bg-white rounded-xl max-w-md w-full max-h-[80vh] overflow-y-auto shadow-2xl animate-fadeInUp"
+            >
+                <div className="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+                    <h3 className="text-xl font-bold">Select a Country</h3>
+                    <button 
+                        onClick={onClose}
+                        className="p-2 rounded-full hover:bg-gray-100"
+                        aria-label="Close popup"
+                    >
+                        ✕
+                    </button>
+                </div>
+                
+                <div className="p-4">
+                    <div className="relative mb-4">
+                        <input 
+                            ref={searchInputRef}
+                            type="text" 
+                            placeholder="Search countries..."
+                            className="w-full p-3 border rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') e.preventDefault();
+                            }}
+                        />
+                        <span className="absolute left-3 top-3 text-gray-400">🔍</span>
+                    </div>
+                    
+                    <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                        {filteredCountries.map(country => (
+                            <div 
+                                key={country.id}
+                                onClick={() => {
+                                    onSelect(country);
+                                    setSearchTerm('');
+                                }}
+                                className="p-3 hover:bg-indigo-50 rounded-lg cursor-pointer flex items-center gap-3 transition-colors"
+                            >
+                                <span className="text-2xl">{country.flag}</span>
+                                <span>{country.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
     return (
         <div className="font-sans text-gray-800 min-h-screen overflow-x-hidden relative">
@@ -302,7 +642,7 @@ const HomePage = () => {
                                     key={country.id}
                                     className="bg-white/80 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 sm:p-6 md:p-8 text-center shadow-lg hover:-translate-y-2 md:hover:-translate-y-3 hover:shadow-xl hover:shadow-indigo-500/20 hover:border-indigo-500 border-2 border-transparent transition-all cursor-pointer group animate-fadeInUp"
                                     style={{ animationDelay: `${index * 0.1}s` }}
-                                    onClick={() => selectCountry(country.id)}
+                                    onClick={() => selectCountry(country)}
                                     role="button"
                                     aria-label={`Select ${country.name}`}
                                 >
@@ -313,6 +653,31 @@ const HomePage = () => {
                             ))}
                         </div>
                     </div>
+
+                    {/* Country Info Popup */}
+                    {showCountryPopup && (
+                        <CountryPopup 
+                            country={selectedCountry} 
+                            onClose={() => setShowCountryPopup(false)} 
+                        />
+                    )}
+
+                    {/* More Countries Popup */}
+                    {showMoreCountries && (
+                        <MoreCountriesPopup 
+                            countries={allCountries} 
+                            onSelect={(country) => {
+                                setShowMoreCountries(false);
+                                setSelectedCountry(country);
+                                setShowCountryPopup(true);
+                                setSearchTerm('');
+                            }}
+                            onClose={() => {
+                                setShowMoreCountries(false);
+                                setSearchTerm('');
+                            }}
+                        />
+                    )}
                 </LazySection>
 
                 {/* Features Section */}
@@ -463,7 +828,7 @@ const HomePage = () => {
                 }
                 
                 .animate-fadeInUp {
-                    animation: fadeInUp 1s ease-out forwards;
+                    animation: fadeInUp 0.3s ease-out forwards;
                     opacity: 0;
                 }
                 
@@ -495,20 +860,20 @@ const HomePage = () => {
 
                 /* Enhanced scrollbar */
                 ::-webkit-scrollbar {
-                    width: 8px;
+                    width: 6px;
                 }
                 
                 ::-webkit-scrollbar-track {
-                    background: linear-gradient(to bottom, #f1f5f9, #e2e8f0);
+                    background: rgba(0, 0, 0, 0.05);
                 }
                 
                 ::-webkit-scrollbar-thumb {
-                    background: linear-gradient(to bottom, #6366f1, #8b5cf6);
-                    border-radius: 4px;
+                    background-color: rgba(79, 70, 229, 0.5);
+                    border-radius: 3px;
                 }
                 
                 ::-webkit-scrollbar-thumb:hover {
-                    background: linear-gradient(to bottom, #4f46e5, #7c3aed);
+                    background-color: rgba(79, 70, 229, 0.7);
                 }
 
                 /* Custom breakpoints */
