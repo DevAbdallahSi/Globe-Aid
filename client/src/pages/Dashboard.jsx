@@ -17,6 +17,8 @@ import {
     ChevronRight
 } from 'lucide-react';
 import AgentChatWidget from '../components/AgentChatWidget';
+import { User } from 'lucide-react';
+
 
 
 const UserDashboard = ({ user }) => {
@@ -129,11 +131,10 @@ const UserDashboard = ({ user }) => {
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
                             <div className="relative">
-                                <img
-                                    src={user.avatar}
-                                    alt={user.name}
-                                    className="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-lg"
-                                />
+                                <div className="w-16 h-16 rounded-2xl border-2 border-white shadow-lg bg-white flex items-center justify-center">
+                                    <User className="w-8 h-8 text-gray-600" />
+                                </div>
+
                                 <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white ${isOnline ? 'bg-green-500' : 'bg-gray-400'} flex items-center justify-center`}>
                                     {isOnline ? <Wifi className="w-3 h-3 text-white" /> : <WifiOff className="w-3 h-3 text-white" />}
                                 </div>
