@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Clock, Plus, Search, User, Calendar, Star, ArrowRight, Gift } from 'lucide-react';
+import AgentChatWidget from '../components/AgentChatWidget';
 
 const TimeBank = () => {
     const [activeTab, setActiveTab] = useState('browse');
@@ -329,6 +330,7 @@ const TimeBank = () => {
                         </div>
                     </div>
                 )}
+                <AgentChatWidget />
 
                 {/* History Tab */}
                 {activeTab === 'history' && (
@@ -352,6 +354,7 @@ const TimeBank = () => {
                 )}
             </div>
         </div>
+        
     );
 };
 
