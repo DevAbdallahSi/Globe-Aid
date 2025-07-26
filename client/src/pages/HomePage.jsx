@@ -78,9 +78,9 @@ const HomePage = () => {
     const countries = [
         { flag: "🇺🇸", name: "United States", description: "Navigate American culture, education, and social norms", id: "usa" },
         { flag: "🇬🇧", name: "United Kingdom", description: "Discover British customs, university life, and traditions", id: "uk" },
-        { flag: "🇨🇦", name: "Canada", description: "Explore Canadian multiculturalism and community values", id: "canada" },
-        { flag: "🇦🇺", name: "Australia", description: "Learn about Aussie lifestyle and cultural diversity", id: "australia" },
-        { flag: "🇩🇪", name: "Germany", description: "Understand German efficiency, culture, and social systems", id: "germany" },
+        { flag: "🇫🇷", name: "France", description: "Immerse yourself in French language, lifestyle, and cultural etiquette", id: "france" },
+        { flag: "🇱🇧", name: "Lebanon", description: "Experience Lebanese hospitality, heritage, and vibrant culture", id: "lebanon" },
+        { flag: "🇵🇸", name: "Palestine", description: "Connect with Palestinian culture, resilience, and community life", id: "palestine" },
         { flag: "🌍", name: "More Countries", description: "Explore our full list of supported destinations", id: "more" }
     ];
 
@@ -254,7 +254,7 @@ const HomePage = () => {
                 )}
             </nav>
 
-            <main className="pt-14 sm:pt-16 md:pt-20 relative z-10">
+            <main className="relative z-10">
                 {/* Hero Section */}
                 <section id="home" className="min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] flex items-center justify-center text-center text-white relative overflow-hidden">
                     <div className="absolute inset-0">
