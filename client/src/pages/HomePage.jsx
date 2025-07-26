@@ -253,33 +253,132 @@ const HomePage = () => {
     if (!country) return null;
 
     // Country-specific data
-    const countryData = {
-        palestine: {
-            language: "Arabic is the primary language; English is understood in major cities and by youth.",
-            communication: "Use respectful titles like 'Abu' (father of) or 'Umm' (mother of) when referring to elders.",
-            culture: "Hospitality is a deep cultural value — guests are treated like family.",
-            etiquette: "Dress modestly, especially in conservative or religious areas (e.g. Hebron, East Jerusalem). Fridays are holy; many businesses close midday.",
-            dailyLife: [
-                "Tap water isn't always safe to drink — bottled water is recommended.",
-                "Cash is commonly used, especially outside cities — carry small bills in shekels.",
-                "Electricity outages may occur, especially in Gaza and some West Bank towns."
-            ],
-            safety: [
-                "Political tensions can rise quickly — avoid protests or large gatherings.",
-                "Check local news or apps (like RedAlert) for area-specific updates.",
-                "Entry/exit to different areas (e.g. Jerusalem, Ramallah) may involve checkpoints."
-            ],
-            healthcare: [
-                "Basic healthcare is available, but private clinics offer better services.",
-                "Pharmacies are widespread and provide over-the-counter meds without prescriptions."
-            ],
-            transport: [
-                "Use 'service' taxis (shared taxis with fixed routes).",
-                "Uber/Bolt are not available — local taxis or arranged transport are best."
-            ]
-        },
-        // ... other country data (usa, uk, france, lebanon) ...
-    };
+const countryData = {
+    palestine: {
+        language: "Arabic is the primary language; English is understood in major cities and by youth.",
+        communication: "Use respectful titles like 'Abu' (father of) or 'Umm' (mother of) when referring to elders.",
+        culture: "Hospitality is a deep cultural value — guests are treated like family.",
+        etiquette: "Dress modestly, especially in conservative or religious areas (e.g. Hebron, East Jerusalem). Fridays are holy; many businesses close midday.",
+        dailyLife: [
+            "Tap water isn't always safe to drink — bottled water is recommended.",
+            "Cash is commonly used, especially outside cities — carry small bills in shekels.",
+            "Electricity outages may occur, especially in Gaza and some West Bank towns."
+        ],
+        safety: [
+            "Political tensions can rise quickly — avoid protests or large gatherings.",
+            "Check local news or apps (like RedAlert) for area-specific updates.",
+            "Entry/exit to different areas (e.g. Jerusalem, Ramallah) may involve checkpoints."
+        ],
+        healthcare: [
+            "Basic healthcare is available, but private clinics offer better services.",
+            "Pharmacies are widespread and provide over-the-counter meds without prescriptions."
+        ],
+        transport: [
+            "Use 'service' taxis (shared taxis with fixed routes).",
+            "Uber/Bolt are not available — local taxis or arranged transport are best."
+        ]
+    },
+    lebanon: {
+        language: "Arabic is official, but French and English are widely spoken.",
+        communication: "Lebanese people are expressive — personal space is less rigid, and conversations can be loud and animated.",
+        culture: "Hospitality and food are central to social life; expect generous and warm interactions.",
+        etiquette: "Dress is modern in Beirut but more conservative in rural areas. Greetings are important — use both hands and kisses on the cheek (when appropriate).",
+        dailyLife: [
+            "Frequent power cuts — generators are commonly used in homes and businesses.",
+            "The Lebanese lira fluctuates heavily — USD is widely accepted.",
+            "Many basic services depend on private providers, such as water and electricity."
+        ],
+        safety: [
+            "Avoid political protests and sensitive areas (like borders with Israel/Syria).",
+            "Stay informed via local apps and embassy alerts.",
+            "Petty theft is uncommon, but caution is still advised in crowded areas."
+        ],
+        healthcare: [
+            "Private hospitals (especially in Beirut) offer excellent care but can be expensive.",
+            "Emergency care is available, but travel insurance is recommended."
+        ],
+        transport: [
+            "No real public transit system — use shared taxis or apps like Yango, Allo Taxi.",
+            "Traffic in Beirut can be heavy; walking is best for short distances."
+        ]
+    },
+    france: {
+        language: "French is the official language and is expected in public interactions.",
+        communication: "Formality is important — use 'vous' for strangers and older people, and always greet with 'Bonjour'.",
+        culture: "The French take pride in food, art, and conversation — enjoy meals and social gatherings slowly and respectfully.",
+        etiquette: "Say hello and goodbye when entering or leaving shops. Avoid loud behavior in public spaces.",
+        dailyLife: [
+            "Shops often close for lunch (12–2 PM), and early on Sundays.",
+            "Tap water is safe to drink almost everywhere.",
+            "Public restrooms are not always free or easy to find — keep change with you."
+        ],
+        safety: [
+            "Pickpocketing is common in crowded tourist spots like the metro or Eiffel Tower.",
+            "Protests (manifestations) can disrupt traffic and public transit — avoid large gatherings.",
+            "Use official taxis or apps to avoid scams, especially at airports."
+        ],
+        healthcare: [
+            "High-quality healthcare system — public (with Carte Vitale) and private services available.",
+            "Pharmacies are well-regulated and pharmacists can provide health advice."
+        ],
+        transport: [
+            "Metro and buses are efficient in cities (especially Paris).",
+            "SNCF trains connect major cities — book early for better prices.",
+            "Walking and cycling are common; bike-sharing services are widely available."
+        ]
+    },
+    uk: {
+        language: "English is spoken everywhere, though regional accents (e.g., Scottish, Welsh) may vary widely.",
+        communication: "British people are polite and reserved — expect indirect communication and dry humour.",
+        culture: "Traditions like tea time and pub culture are strong. Queuing and respecting personal space are very important.",
+        etiquette: "Be punctual. Always say 'please,' 'thank you,' and 'sorry.' Avoid overly personal questions early in relationships.",
+        dailyLife: [
+            "Shops typically close early (5–6 PM) outside big cities; Sunday hours are limited.",
+            "Contactless payments and Oyster cards are widely used.",
+            "Tap water is safe to drink across the UK."
+        ],
+        safety: [
+            "Generally very safe, but be alert in nightlife areas after dark.",
+            "Emergency number is 999 or 112.",
+            "Always check local travel updates during rail strikes or weather disruptions."
+        ],
+        healthcare: [
+            "NHS offers free healthcare to residents and students. Tourists should have travel insurance.",
+            "Walk-in clinics and GP appointments are common for non-emergencies."
+        ],
+        transport: [
+            "Excellent train and underground networks; London has the Tube, Oyster cards for transport.",
+            "Buses are reliable; check local apps (Citymapper, Trainline).",
+            "Driving is on the **left** — roads are narrow in many towns."
+        ]
+    },
+    usa: {
+        language: "English is the primary language; Spanish is also widely spoken in many states.",
+        communication: "Friendly, casual, and direct. Small talk is common in public and customer service settings.",
+        culture: "Individualism and personal freedom are strong values. Cultural norms vary by region.",
+        etiquette: "Tipping is expected (15–20% in restaurants). Respect personal space and privacy.",
+        dailyLife: [
+            "Credit/debit card use is nearly universal — cash is rarely needed.",
+            "Open hours are flexible; many businesses operate 24/7.",
+            "Alcohol and tobacco laws vary by state — the legal drinking age is 21."
+        ],
+        safety: [
+            "Emergency number is 911.",
+            "Gun laws vary — avoid confrontation and stay informed about local regulations.",
+            "Urban areas are generally safe, but caution is advised at night in unfamiliar places."
+        ],
+        healthcare: [
+            "There is no universal healthcare — medical care is expensive.",
+            "Always have travel insurance; ER visits can cost thousands without it."
+        ],
+        transport: [
+            "Public transport is limited outside major cities — car rental may be necessary.",
+            "Rideshare apps like Uber and Lyft are widely used.",
+            "Cross-country travel is often by domestic flights due to large distances."
+        ]
+    }
+};
+
 
     const data = countryData[country.id] || {
         language: "Explore the rich cultural heritage, customs, and social norms of this country.",
