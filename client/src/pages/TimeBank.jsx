@@ -52,6 +52,25 @@ const TimeBank = () => {
     const totalEarned = timeHistory.filter(h => h.type === 'earned').reduce((sum, h) => sum + h.hours, 0);
     const totalSpent = timeHistory.filter(h => h.type === 'spent').reduce((sum, h) => sum + h.hours, 0);
 
+
+    const handleRequestService = async (serviceId) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.post(`http://localhost:8000/api/services/request/${serviceId}`, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            alert('Service requested successfully!');
+        } catch (err) {
+            console.error('Failed to request service:', err);
+            alert('Error requesting service.');
+        }
+    };
+
+
+
+
+
+
     const ServiceCard = ({ service }) => (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-4">
@@ -88,7 +107,10 @@ const TimeBank = () => {
                 <div>{service.location}</div>
             </div>
 
-            <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+            <button
+                onClick={() => handleRequestService(service._id)}
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+            >
                 Request Service
                 <ArrowRight className="w-4 h-4 ml-2" />
             </button>
@@ -406,7 +428,7 @@ const TimeBank = () => {
                 )}
             </div>
         </div>
-        
+
     );
 };
 
