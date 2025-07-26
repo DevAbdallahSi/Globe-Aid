@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
     MessageCircle,
     Clock,
@@ -14,15 +16,17 @@ import {
     MapPin,
     ChevronRight
 } from 'lucide-react';
+import AgentChatWidget from '../components/AgentChatWidget';
 
-const UserDashboard = () => {
+
+const UserDashboard = ({ user }) => {
     const [isOnline, setIsOnline] = useState(true);
-    const [user] = useState({
-        name: "Alex Chen",
-        location: "Berlin, Germany",
-        memberSince: "March 2024",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-    });
+
+    const navigate = useNavigate();
+
+    if (!user) {
+        return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
+    }
 
     const [stats] = useState({
         chatCount: 47,
@@ -31,11 +35,7 @@ const UserDashboard = () => {
         hoursContributed: 156
     });
 
-    const [services] = useState([
-        { id: 1, title: "German Language Practice", category: "Language", requests: 12, rating: 4.9 },
-        { id: 2, title: "Berlin City Guide", category: "Cultural", requests: 8, rating: 5.0 },
-        { id: 3, title: "University Application Help", category: "Educational", requests: 15, rating: 4.8 }
-    ]);
+
 
     const [recentActivity] = useState([
         { type: "chat", message: "Helped Maria with visa questions", time: "2 hours ago" },
@@ -43,12 +43,28 @@ const UserDashboard = () => {
         { type: "achievement", message: "Reached 150 hours milestone!", time: "1 day ago" }
     ]);
 
+
+    const [services, setServices] = useState([]);
+
     useEffect(() => {
-        const interval = setInterval(() => {
-            setIsOnline(prev => Math.random() > 0.1 ? true : prev);
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
+        const fetchUserServices = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get('http://localhost:8000/api/services/mine', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                setServices(res.data);
+            } catch (error) {
+                console.error('Failed to fetch user services:', error);
+            }
+        };
+
+        if (user) {
+            fetchUserServices();
+        }
+    }, [user]);
 
     const StatCard = ({ icon: Icon, label, value, trend, color = "blue" }) => (
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 group">
@@ -91,8 +107,22 @@ const UserDashboard = () => {
         </div>
     );
 
+    const handleOfferClick = () => {
+        navigate('/timebank?tab=offer'); 
+    };
+
+
+
+    if (!user) return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-4 sm:px-6 lg:px-8 py-6">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-4 sm:px-6 lg:px-8 py-6 relative">
+            {/* Floating Agent Chat Widget */}
+            <div className="fixed bottom-6 right-6 z-50">
+                <AgentChatWidget />
+            </div>
+            
+
+
             {/* Header */}
             <div className="max-w-7xl mx-auto mb-8">
                 <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
@@ -108,14 +138,15 @@ const UserDashboard = () => {
                                     {isOnline ? <Wifi className="w-3 h-3 text-white" /> : <WifiOff className="w-3 h-3 text-white" />}
                                 </div>
                             </div>
+
                             <div>
                                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Welcome back, {user.name}! 👋</h1>
                                 <div className="flex flex-wrap items-center gap-3 text-gray-600 mt-2">
                                     <div className="flex items-center text-sm">
-                                        <MapPin className="w-4 h-4 mr-1" />{user.location}
+                                        <MapPin className="w-4 h-4 mr-1" />{user?.country || "Unknown"}
                                     </div>
                                     <div className="flex items-center text-sm">
-                                        <Calendar className="w-4 h-4 mr-1" />Member since {user.memberSince}
+                                        <Calendar className="w-4 h-4 mr-1" />Member since {user?.createdAt?.slice(0, 10) || "N/A"}
                                     </div>
                                 </div>
                             </div>
@@ -141,7 +172,8 @@ const UserDashboard = () => {
                         </div>
                     </button>
 
-                    <button className="group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
+                    <button onClick={handleOfferClick}
+                    className="group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
                         <div className="flex items-center justify-between">
                             <div className="text-left">
                                 <h3 className="text-xl md:text-2xl font-bold mb-2">Offer Services</h3>
@@ -195,7 +227,6 @@ const UserDashboard = () => {
                                 ))}
                             </div>
                         </div>
-
                         <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-6 text-white">
                             <h3 className="text-lg font-bold mb-4">Community Impact</h3>
                             <div className="space-y-3">
