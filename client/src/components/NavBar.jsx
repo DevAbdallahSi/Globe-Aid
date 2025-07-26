@@ -32,52 +32,166 @@ const Navbar = ({ isLoggedIn, user, onLogout }) => {
         }
     };
 
+    // Check if current path matches the link
+    const isActiveLink = (path) => {
+        return location.pathname === path;
+    };
+
     return (
-        <nav className={`fixed top-0 w-full z-50 py-2 sm:py-3 md:py-4 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur shadow-md' : 'bg-white/95 backdrop-blur border-b border-white/20'}`}>
+        <nav className={`fixed top-0 w-full z-50 py-2 sm:py-3 md:py-4 bg-slate-900/95 backdrop-blur-xl border-b border-slate-700/50`}>
             <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 flex justify-between items-center">
                 {/* Logo */}
-                <Link to="/" className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-700 bg-clip-text text-transparent">
-                    🌍 GlobeAid
+                <Link 
+                    to="/" 
+                    className="flex items-center gap-2 sm:gap-3 hover:scale-105 transition-transform duration-300"
+                >
+                    {/* Real Icon - Helping Hands with Globe */}
+                    <div className="relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12">
+                        <svg 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            className="w-full h-full"
+                        >
+                            {/* Globe background */}
+                            <circle 
+                                cx="12" 
+                                cy="12" 
+                                r="10" 
+                                fill="url(#globeGradient)" 
+                                stroke="url(#borderGradient)" 
+                                strokeWidth="1"
+                            />
+                            {/* Helping hands */}
+                            <path 
+                                d="M8 10c0-1 1-2 2-2s2 1 2 2-1 2-2 2-2-1-2-2zm4 4c0-1 1-2 2-2s2 1 2 2-1 2-2 2-2-1-2-2z" 
+                                fill="white" 
+                                opacity="0.9"
+                            />
+                            {/* Connection lines */}
+                            <path 
+                                d="M10 12l4-2m-4 2l4 2" 
+                                stroke="white" 
+                                strokeWidth="1.5" 
+                                strokeLinecap="round" 
+                                opacity="0.7"
+                            />
+                            
+                            <defs>
+                                <linearGradient id="globeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#8B5CF6" />
+                                    <stop offset="50%" stopColor="#EC4899" />
+                                    <stop offset="100%" stopColor="#6366F1" />
+                                </linearGradient>
+                                <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#A855F7" />
+                                    <stop offset="100%" stopColor="#EC4899" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <span className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+                        GlobeAid
+                    </span>
                 </Link>
 
                 {/* Desktop Menu */}
                 <ul className="hidden md:flex items-center space-x-4 lg:space-x-6 xl:space-x-8">
-                    <li>
+                    <li className="relative group">
                         <Link
                             to="/"
-                            className={`${isLoggedIn
-                                ? 'font-medium hover:text-indigo-500 transition-all text-sm lg:text-base'
-                                : 'text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-700 bg-clip-text text-transparent'
-                            }`}
+                            className={`relative px-3 py-2 font-medium transition-all duration-300 ${
+                                isActiveLink('/') 
+                                    ? 'text-white' 
+                                    : 'text-gray-300 hover:text-white'
+                            } text-sm lg:text-base`}
                         >
                             Home
+                            {/* Active indicator */}
+                            <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${
+                                isActiveLink('/') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                            }`}></div>
+                            {/* Hover glow effect */}
+                            <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
                         </Link>
                     </li>
 
                     {!isAuthPage && !isLoggedIn && (
-                        <li>
+                        <li className="relative group">
                             <a
                                 href="#about"
                                 onClick={(e) => {
                                     handleScroll(e, '#about');
                                     setMobileMenuOpen(false);
                                 }}
-                                className={`${isLoggedIn
-                                    ? 'font-medium hover:text-indigo-500 transition-all text-sm lg:text-base'
-                                    : 'text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-700 bg-clip-text text-transparent'
-                                }`}
+                                className="relative px-3 py-2 font-medium text-gray-300 hover:text-white transition-all duration-300 text-sm lg:text-base cursor-pointer"
                             >
                                 About Us
+                                {/* Hover indicator */}
+                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                                {/* Hover glow effect */}
+                                <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
                             </a>
                         </li>
                     )}
 
                     {isLoggedIn && (
                         <>
-                            <li><Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="font-medium hover:text-indigo-500 transition-all text-sm lg:text-base">My Dashboard</Link></li>
-                            <li><Link to="/timebank" onClick={() => setMobileMenuOpen(false)} className="font-medium hover:text-indigo-500 transition-all text-sm lg:text-base">My Time Bank</Link></li>
-                            <li><Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="font-medium hover:text-indigo-500 transition-all text-sm lg:text-base">My Profile</Link></li>
-                            <li className="text-sm lg:text-base font-medium">Hi, {user.name || user.email?.split('@')[0]}</li>
+                            <li className="relative group">
+                                <Link 
+                                    to="/dashboard" 
+                                    onClick={() => setMobileMenuOpen(false)} 
+                                    className={`relative px-3 py-2 font-medium transition-all duration-300 ${
+                                        isActiveLink('/dashboard') 
+                                            ? 'text-white' 
+                                            : 'text-gray-300 hover:text-white'
+                                    } text-sm lg:text-base`}
+                                >
+                                    My Dashboard
+                                    <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${
+                                        isActiveLink('/dashboard') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                                    }`}></div>
+                                    <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+                                </Link>
+                            </li>
+                            <li className="relative group">
+                                <Link 
+                                    to="/timebank" 
+                                    onClick={() => setMobileMenuOpen(false)} 
+                                    className={`relative px-3 py-2 font-medium transition-all duration-300 ${
+                                        isActiveLink('/timebank') 
+                                            ? 'text-white' 
+                                            : 'text-gray-300 hover:text-white'
+                                    } text-sm lg:text-base`}
+                                >
+                                    My Time Bank
+                                    <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${
+                                        isActiveLink('/timebank') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                                    }`}></div>
+                                    <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+                                </Link>
+                            </li>
+                            <li className="relative group">
+                                <Link 
+                                    to="/profile" 
+                                    onClick={() => setMobileMenuOpen(false)} 
+                                    className={`relative px-3 py-2 font-medium transition-all duration-300 ${
+                                        isActiveLink('/profile') 
+                                            ? 'text-white' 
+                                            : 'text-gray-300 hover:text-white'
+                                    } text-sm lg:text-base`}
+                                >
+                                    My Profile
+                                    <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${
+                                        isActiveLink('/profile') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                                    }`}></div>
+                                    <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+                                </Link>
+                            </li>
+                            <li className="text-sm lg:text-base font-medium text-gray-300 px-3 py-2">
+                                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                                    Hi, {user.name || user.email?.split('@')[0]} ✨
+                                </span>
+                            </li>
                         </>
                     )}
 
@@ -85,13 +199,15 @@ const Navbar = ({ isLoggedIn, user, onLogout }) => {
                         <li>
                             <button
                                 onClick={handleAuthAction}
-                                className="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white px-3 md:px-4 lg:px-6 py-2 rounded-full flex items-center gap-1 lg:gap-2 hover:-translate-y-0.5 hover:scale-105 transition-all shadow-lg hover:shadow-xl shadow-indigo-500/30 text-sm lg:text-base relative overflow-hidden group"
+                                className="bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 text-white px-4 md:px-5 lg:px-6 py-2.5 rounded-full flex items-center gap-2 hover:-translate-y-0.5 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/25 text-sm lg:text-base relative overflow-hidden group border border-white/10"
                                 aria-label={isLoggedIn ? 'Logout' : 'Login or Register'}
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <span className="text-xs lg:text-sm relative z-10">👤</span>
-                                <span className="hidden lg:inline relative z-10">{isLoggedIn ? 'Logout' : 'Login/Register'}</span>
-                                <span className="lg:hidden relative z-10">{isLoggedIn ? 'Logout' : 'Login'}</span>
+                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <span className="text-lg relative z-10">👤</span>
+                                <span className="hidden lg:inline relative z-10 font-medium">{isLoggedIn ? 'Logout' : 'Login/Register'}</span>
+                                <span className="lg:hidden relative z-10 font-medium">{isLoggedIn ? 'Logout' : 'Login'}</span>
+                                {/* Button shine effect */}
+                                <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 group-hover:translate-x-full transition-all duration-700"></div>
                             </button>
                         </li>
                     )}
@@ -99,31 +215,34 @@ const Navbar = ({ isLoggedIn, user, onLogout }) => {
 
                 {/* Mobile Menu Button */}
                 <button
-                    className="md:hidden p-2 focus:outline-none"
+                    className="md:hidden p-2 focus:outline-none relative group"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 >
-                    <div className="w-5 h-5 flex flex-col justify-center space-y-1">
-                        <span className={`block h-0.5 w-full bg-gray-800 transition-all ${mobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-                        <span className={`block h-0.5 w-full bg-gray-800 transition-all ${mobileMenuOpen ? 'opacity-0' : ''}`}></span>
-                        <span className={`block h-0.5 w-full bg-gray-800 transition-all ${mobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+                    <div className="w-6 h-6 flex flex-col justify-center space-y-1.5">
+                        <span className={`block h-0.5 w-full bg-gray-300 group-hover:bg-white transition-all duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+                        <span className={`block h-0.5 w-full bg-gray-300 group-hover:bg-white transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : ''}`}></span>
+                        <span className={`block h-0.5 w-full bg-gray-300 group-hover:bg-white transition-all duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
                     </div>
                 </button>
             </div>
 
             {/* Mobile Menu */}
-            {mobileMenuOpen && (
-                <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur border-b border-gray-200 px-4 py-4">
-                    <ul className="space-y-4">
+            <div className={`md:hidden absolute top-full left-0 right-0 bg-slate-900/98 backdrop-blur-xl border-b border-purple-500/20 transition-all duration-300 ${
+                mobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'
+            }`}>
+                <div className="px-4 py-6">
+                    <ul className="space-y-3">
                         <li>
                             <Link
                                 to="/"
-                                className={`${isLoggedIn
-                                    ? 'block font-medium hover:text-indigo-500 transition-all py-2'
-                                    : 'block text-xl font-bold bg-gradient-to-r from-indigo-500 to-purple-700 bg-clip-text text-transparent'
+                                className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                                    isActiveLink('/') 
+                                        ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400' 
+                                        : 'text-gray-300 hover:text-white hover:bg-white/5'
                                 }`}
                                 onClick={() => setMobileMenuOpen(false)}
                             >
-                                Home
+                                🏠 Home
                             </Link>
                         </li>
 
@@ -135,38 +254,76 @@ const Navbar = ({ isLoggedIn, user, onLogout }) => {
                                         handleScroll(e, '#about');
                                         setMobileMenuOpen(false);
                                     }}
-                                    className={`${isLoggedIn
-                                        ? 'block font-medium hover:text-indigo-500 transition-all py-2'
-                                        : 'block text-xl font-bold bg-gradient-to-r from-indigo-500 to-purple-700 bg-clip-text text-transparent'
-                                    }`}
+                                    className="block px-4 py-3 rounded-xl font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-300"
                                 >
-                                    About Us
+                                    ℹ️ About Us
                                 </a>
                             </li>
                         )}
 
                         {isLoggedIn && (
                             <>
-                                <li><Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block font-medium hover:text-indigo-500 transition-all py-2">My Dashboard</Link></li>
-                                <li><Link to="/timebank" onClick={() => setMobileMenuOpen(false)} className="block font-medium hover:text-indigo-500 transition-all py-2">My Time Bank</Link></li>
-                                <li><Link to="/profile" onClick={() => setMobileMenuOpen(false)} className="block font-medium hover:text-indigo-500 transition-all py-2">My Profile</Link></li>
-                                <li className="block font-medium py-2">Hi, {user.name || user.email?.split('@')[0]}</li>
+                                <li>
+                                    <Link 
+                                        to="/dashboard" 
+                                        onClick={() => setMobileMenuOpen(false)} 
+                                        className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                                            isActiveLink('/dashboard') 
+                                                ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400' 
+                                                : 'text-gray-300 hover:text-white hover:bg-white/5'
+                                        }`}
+                                    >
+                                        📊 My Dashboard
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link 
+                                        to="/timebank" 
+                                        onClick={() => setMobileMenuOpen(false)} 
+                                        className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                                            isActiveLink('/timebank') 
+                                                ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400' 
+                                                : 'text-gray-300 hover:text-white hover:bg-white/5'
+                                        }`}
+                                    >
+                                        ⏰ My Time Bank
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link 
+                                        to="/profile" 
+                                        onClick={() => setMobileMenuOpen(false)} 
+                                        className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                                            isActiveLink('/profile') 
+                                                ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400' 
+                                                : 'text-gray-300 hover:text-white hover:bg-white/5'
+                                        }`}
+                                    >
+                                        👤 My Profile
+                                    </Link>
+                                </li>
+                                <li className="px-4 py-3">
+                                    <div className="text-sm font-medium bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                                        ✨ Hi, {user.name || user.email?.split('@')[0]}
+                                    </div>
+                                </li>
                             </>
                         )}
 
                         {!isAuthPage && (
-                            <li>
+                            <li className="pt-2">
                                 <button
                                     onClick={handleAuthAction}
-                                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-700 text-white px-4 py-3 rounded-full flex items-center justify-center gap-2 hover:shadow-lg transition-all"
+                                    className="w-full bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 text-white px-6 py-4 rounded-xl flex items-center justify-center gap-3 hover:scale-105 hover:shadow-lg transition-all duration-300 font-medium border border-white/10"
                                 >
-                                    👤 {isLoggedIn ? 'Logout' : 'Login/Register'}
+                                    <span className="text-xl">👤</span>
+                                    {isLoggedIn ? 'Logout' : 'Login/Register'}
                                 </button>
                             </li>
                         )}
                     </ul>
                 </div>
-            )}
+            </div>
         </nav>
     );
 };

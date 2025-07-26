@@ -5,7 +5,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 router.post('/chat', async (req, res) => {
-    const { messages } = req.body;
+    const { messages,userName } = req.body;
 
     const prompt = {
         role: "system",
