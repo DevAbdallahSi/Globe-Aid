@@ -113,7 +113,7 @@ const App = () => {
                         path="/deepseek"
                         element={
                             isLoggedIn && user ? (
-                                <DeepSeekChat />
+                                <DeepSeekChat user={user} />
                             ) : (
                                 <AuthComponent onLogin={handleLogin} />
                             )

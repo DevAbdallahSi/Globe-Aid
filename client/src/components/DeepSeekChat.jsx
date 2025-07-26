@@ -1,12 +1,26 @@
 import React, { useState, useRef } from 'react';
 import { Send, Bot, User, AlertCircle } from 'lucide-react';
+import { useEffect } from 'react';
 
-const DeepSeekChat = () => {
+
+const DeepSeekChat = ({ user }) => {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const inputRef = useRef(null);
+
+    useEffect(() => {
+    if (messages.length === 0 && user?.name) {
+        const welcome = {
+            id: Date.now().toString(),
+            content: `Hi ${user.name}, welcome to GlobeAid AI! 🌍\n\nHow can I help you plan your next adventure?`,
+            isUser: false,
+            timestamp: new Date(),
+        };
+        setMessages([welcome]);
+    }
+}, [user]);
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -19,7 +33,17 @@ const DeepSeekChat = () => {
             timestamp: new Date(),
         };
 
-        setMessages(prev => [...prev, userMessage]);
+        const cleanMarkdown = (text) => {
+            return text
+                .replace(/^#+\s?/gm, '')               // remove headings like ### or ##
+                .replace(/\*\*(.*?)\*\*/g, '$1')       // bold
+                .replace(/\*(.*?)\*/g, '$1')           // italic
+                .replace(/^- /gm, '• ')                // lists
+                .replace(/\r?\n|\r/g, '\n');           // normalize line breaks
+        };
+
+        const updatedMessages = [...messages, userMessage];
+        setMessages(updatedMessages);
         setInput('');
         setLoading(true);
         setError(null);
@@ -28,16 +52,22 @@ const DeepSeekChat = () => {
             const res = await fetch('http://localhost:8000/api/deepseek/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userMessage.content }),
+                body: JSON.stringify({
+                    messages: updatedMessages.map(msg => ({
+                        role: msg.isUser ? 'user' : 'assistant',
+                        content: msg.content
+                    })),
+                        userName: user?.name || 'Traveler' // Add this line
+                })
             });
 
             if (!res.ok) throw new Error('Network response was not ok');
 
-            const data = await res.json();
+            const data = await res.json();  
 
             const aiMessage = {
                 id: (Date.now() + 1).toString(),
-                content: data.reply,
+                content: cleanMarkdown(data.reply), // use the cleanup here
                 isUser: false,
                 timestamp: new Date(),
             };
@@ -51,6 +81,7 @@ const DeepSeekChat = () => {
         setLoading(false);
         inputRef.current?.focus();
     };
+
 
     const formatTime = (timestamp) => {
         return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
