@@ -40,7 +40,7 @@ const TimeBank = () => {
 
     const [userBalance] = useState(4.5); // Time credits balance
 
-    const categories = ["all", "Education", "Cooking", "Gardening", "Technology", "Health", "Arts", "Home"];
+    const categories = ["all", "Education", "Cooking", "Gardening", "Technology", "Health", "Arts", "Home", "Other"];
 
     const filteredServices = services.filter(service => {
         const matchesSearch = service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -65,11 +65,6 @@ const TimeBank = () => {
             alert('Error requesting service.');
         }
     };
-
-
-
-
-
 
     const ServiceCard = ({ service }) => (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
