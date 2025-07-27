@@ -32,6 +32,8 @@ app.use('/api/services', require('./routes/serviceRoutes.route'));
 app.get('/', (req, res) => res.send('API running...'));
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/services',require('./routes/serviceRoutes.route'))
+const timebankRoutes = require('./routes/timeBank.Routes');
+app.use('/api/timebank', timebankRoutes);
 
 
 // Create HTTP server

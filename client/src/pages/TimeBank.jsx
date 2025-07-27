@@ -189,6 +189,26 @@ const TimeBank = () => {
             console.error("Failed to fetch user stats:", err);
         }
     };
+
+    useEffect(() => {
+        const fetchTimeHistory = async () => {
+            if (activeTab !== 'history') return;
+            try {
+                const token = localStorage.getItem('token');
+                const res = await axios.get('http://localhost:8000/api/timebank/history', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setTimeHistory(res.data);
+            } catch (err) {
+                console.error('Failed to fetch time exchange history:', err);
+            }
+        };
+
+        fetchTimeHistory();
+    }, [activeTab]);
+
+
+
     useEffect(() => {
         refreshUserStats();
     }, []);
