@@ -20,6 +20,7 @@ const App = () => {
     const [authLoading, setAuthLoading] = useState(true);
     const [showPopupChat, setShowPopupChat] = useState(false);
     const [popupReceiverId, setPopupReceiverId] = useState(null);
+    const [popupReceiverName, setPopupReceiverName] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -51,10 +52,12 @@ const App = () => {
         fetchUser();
     }, []);
 
-    const openChatPopup = (receiverId) => {
+    const openChatPopup = (receiverId, receiverName) => {
         setPopupReceiverId(receiverId);
+        setPopupReceiverName(receiverName || 'User');
         setShowPopupChat(true);
     };
+
 
     const closeChatPopup = () => {
         setShowPopupChat(false);
@@ -148,10 +151,12 @@ const App = () => {
                     />
                 </Routes>
                 {showPopupChat && user && popupReceiverId && (
-                    <div className="fixed bottom-4 right-4 z-50 w-[350px] sm:w-[400px] bg-white rounded-2xl shadow-xl border">
+                    <div className="fixed bottom-4 right-24 z-50 w-[350px] sm:w-[400px] bg-white rounded-2xl shadow-xl border">
                         <ChatBox
                             userId={user._id}
                             receiverId={popupReceiverId}
+                            userName={user?.name || 'You'}
+                            receiverName={popupReceiverName}
                             onClose={closeChatPopup}
                             isOpen={true}
                         />

@@ -83,6 +83,7 @@ const UserDashboard = ({ user, openChatPopup }) => {
                     }
                 });
                 setRequestedServices(res.data);
+                console.log("req",res.data)
             } catch (err) {
                 console.error("Failed to fetch requested services:", err);
             }
@@ -273,7 +274,7 @@ const UserDashboard = ({ user, openChatPopup }) => {
                                 </button>
                             </div>
                             <div className="space-y-4">
-                                {services.map(service => (<ServiceCard key={service.id} service={service} />))}
+                                {services.map(service => (<ServiceCard key={service._id} service={service} />))}
                             </div>
                         </div>
                     </div>
@@ -314,7 +315,7 @@ const UserDashboard = ({ user, openChatPopup }) => {
                                                 Cancel Request
                                             </button>
                                             <button
-                                                onClick={() => openChatPopup(req.service.user)}
+                                                onClick={() => openChatPopup(req.service.user, req.service.username)}
                                                 className="text-blue-600 hover:underline text-sm"
                                             >
                                                 Open Chat
@@ -325,8 +326,6 @@ const UserDashboard = ({ user, openChatPopup }) => {
                             </div>
                         </div>
                     )}
-
-
                     <div className="space-y-6">
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                             <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
@@ -383,16 +382,13 @@ const UserDashboard = ({ user, openChatPopup }) => {
                                         key={req._id}
                                         className="flex flex-col py-2 border-b cursor-pointer hover:bg-gray-50"
                                         onClick={() => {
-                                            openChatPopup(req.requester._id);
+                                            openChatPopup(req.requester._id, req.requester.name); // ✅ pass both ID and name
                                             setIsModalOpen(false);
                                         }}
                                     >
                                         <span className="font-medium text-gray-900">{req.requester?.name || "Unknown"}</span>
                                         <span className="text-sm text-gray-500">{req.requester?.email || "N/A"}</span>
                                     </li>
-
-
-
                                 ))}
                             </ul>
                         ) : (
