@@ -478,23 +478,12 @@ const UserDashboard = ({ user, openChatPopup }) => {
                                             </span>
                                         </div>
 
-                                    <li
-                                        key={req._id}
-                                        className="flex flex-col py-2 border-b cursor-pointer hover:bg-gray-50"
-                                        onClick={() => {
-                                            openChatPopup(req.requester._id, req.requester.name); // ✅ pass both ID and name
-                                            setIsModalOpen(false);
-                                        }}
-                                    >
-                                        <span className="font-medium text-gray-900">{req.requester?.name || "Unknown"}</span>
-                                        <span className="text-sm text-gray-500">{req.requester?.email || "N/A"}</span>
-
                                     </li>
                                 ))}
                             </ul>
+                            
                         ) : (
-                            <p className="text-gray-500">No requests yet for this service.</p>
-                        )}
+                            <p className="text-gray-500">No requests yet for this service.</p>)}
                     </div>
                 </div>
             )}
