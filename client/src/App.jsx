@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
 import Navbar from './components/NavBar';
@@ -18,7 +18,10 @@ const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState(null);
     const [authLoading, setAuthLoading] = useState(true);
+    const [showPopupChat, setShowPopupChat] = useState(false);
+    const [popupReceiverId, setPopupReceiverId] = useState(null);
     const navigate = useNavigate();
+    const location = useLocation();
 
     // Fetch user on app load if token exists
     useEffect(() => {
@@ -47,6 +50,16 @@ const App = () => {
 
         fetchUser();
     }, []);
+
+    const openChatPopup = (receiverId) => {
+        setPopupReceiverId(receiverId);
+        setShowPopupChat(true);
+    };
+
+    const closeChatPopup = () => {
+        setShowPopupChat(false);
+        setPopupReceiverId(null);
+    };
 
 
     const ChatWrapper = ({ user }) => {
@@ -105,12 +118,13 @@ const App = () => {
                         path="/dashboard"
                         element={
                             isLoggedIn && user ? (
-                                <UserDashboard user={user} />
+                                <UserDashboard user={user} openChatPopup={openChatPopup} />
                             ) : (
                                 <AuthComponent onLogin={handleLogin} />
                             )
                         }
                     />
+
                     <Route
                         path="/profile"
                         element={
@@ -131,10 +145,18 @@ const App = () => {
                                 <AuthComponent onLogin={handleLogin} />
                             )
                         }
-                    />                </Routes>
-
-                {/* Footer appears on all pages */}
-
+                    />
+                </Routes>
+                {showPopupChat && user && popupReceiverId && (
+                    <div className="fixed bottom-4 right-4 z-50 w-[350px] sm:w-[400px] bg-white rounded-2xl shadow-xl border">
+                        <ChatBox
+                            userId={user._id}
+                            receiverId={popupReceiverId}
+                            onClose={closeChatPopup}
+                            isOpen={true}
+                        />
+                    </div>
+                )}
                 <Footer />
             </div>
         </div>
