@@ -190,12 +190,15 @@ const UserDashboard = ({ user, openChatPopup }) => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // Remove it from the modal list
-            setServiceRequests(prev => prev.filter(r => r._id !== req._id));
+            // ✅ Optionally update the request's status in-place
+            setServiceRequests(prev =>
+                prev.map(r => r._id === req._id ? { ...r, status: 'accepted' } : r)
+            );
 
             // Start chat
             setChatWith(req.requester);
             setIsModalOpen(false);
+
         } catch (err) {
             console.error("❌ Approve failed", err);
             alert("Failed to approve request");
@@ -413,28 +416,66 @@ const UserDashboard = ({ user, openChatPopup }) => {
                         >
                             ✕
                         </button>
-                        <h2 className="text-xl font-bold mb-4">Requests for "{selectedService.title}"</h2>
+                        <h2 className="text-xl font-bold mb-4">
+                            Requests for "{selectedService.title}"
+                        </h2>
+
                         {serviceRequests.length > 0 ? (
                             <ul className="space-y-3">
                                 {serviceRequests.map((req) => (
                                     <li key={req._id} className="py-2 border-b">
-                                        <div className="flex flex-col mb-2">
-                                            <span className="font-medium text-gray-900">{req.requester?.name || "Unknown"}</span>
-                                            <span className="text-sm text-gray-500">{req.requester?.email || "N/A"}</span>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex flex-col">
+                                                <span className="font-medium text-gray-900">
+                                                    {req.requester?.name || "Unknown"}
+                                                </span>
+                                                <span className="text-sm text-gray-500">
+                                                    {req.requester?.email || "N/A"}
+                                                </span>
+                                            </div>
+
+                                            <span
+                                                className={`text-xs font-medium px-2 py-1 rounded-full ${req.status === "pending"
+                                                        ? "bg-yellow-100 text-yellow-700"
+                                                        : req.status === "accepted"
+                                                            ? "bg-green-100 text-green-700"
+                                                            : "bg-red-100 text-red-700"
+                                                    }`}
+                                            >
+                                                {req.status}
+                                            </span>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => handleApprove(req)}
-                                                className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                                            >
-                                                Approve
-                                            </button>
-                                            <button
-                                                onClick={() => handleDecline(req._id)}
-                                                className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                                            >
-                                                Decline
-                                            </button>
+
+                                        {req.status === "pending" && (
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => handleApprove(req)}
+                                                    className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                                                >
+                                                    Approve
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDecline(req._id)}
+                                                    className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                                >
+                                                    Decline
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        <div
+                                            className="flex flex-col py-2 mt-2 cursor-pointer hover:bg-gray-50 rounded"
+                                            onClick={() => {
+                                                openChatPopup(req.requester._id);
+                                                setIsModalOpen(false);
+                                            }}
+                                        >
+                                            <span className="font-medium text-gray-900">
+                                                {req.requester?.name || "Unknown"}
+                                            </span>
+                                            <span className="text-sm text-gray-500">
+                                                {req.requester?.email || "N/A"}
+                                            </span>
                                         </div>
 
                                     <li
@@ -450,8 +491,6 @@ const UserDashboard = ({ user, openChatPopup }) => {
 
                                     </li>
                                 ))}
-
-
                             </ul>
                         ) : (
                             <p className="text-gray-500">No requests yet for this service.</p>
@@ -459,6 +498,8 @@ const UserDashboard = ({ user, openChatPopup }) => {
                     </div>
                 </div>
             )}
+
+
             {chatWith && (
                 <div className="mt-8">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4">
