@@ -22,7 +22,7 @@ import { User } from 'lucide-react';
 
 
 
-const UserDashboard = ({ user, openChatPopup }) => {
+const UserDashboard = ({ user, setUser , openChatPopup }) => {
     const [isOnline, setIsOnline] = useState(true);
 
     const [chatWith, setChatWith] = useState(null);

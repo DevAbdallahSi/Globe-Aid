@@ -117,7 +117,12 @@ const TimeBank = () => {
                 <p className={`font-semibold ${item.type === 'earned' ? 'text-green-600' : 'text-red-600'}`}>
                     {item.type === 'earned' ? '+' : '-'}{item.hours}h
                 </p>
-                <p className="text-xs text-gray-500">{item.date}</p>
+                <p className="text-xs text-gray-500">
+                    {new Date(item.date).toLocaleDateString(undefined, {
+                        year: 'numeric', month: 'short', day: 'numeric'
+                    })}
+                </p>
+
             </div>
         </div>
     );
@@ -189,6 +194,28 @@ const TimeBank = () => {
             socket.off('newService', handleNewService);
         };
     }, [activeTab]);
+
+
+
+    useEffect(() => {
+    const handleTimebankUpdate = () => {
+        if (activeTab === 'history') {
+            // Refresh history if we're viewing it
+            fetchTimeHistory();
+            refreshUserStats(); // also refresh stats if needed
+        }
+    };
+
+    socket.on('timebankUpdated', handleTimebankUpdate);
+
+    return () => {
+        socket.off('timebankUpdated', handleTimebankUpdate);
+    };
+}, [activeTab]);
+
+
+
+
 
     const refreshUserStats = async () => {
         try {
@@ -452,7 +479,7 @@ const TimeBank = () => {
                             <h2 className="text-xl font-bold text-gray-900 mb-4">Time Exchange History</h2>
                             <div className="space-y-3">
                                 {timeHistory.map(item => (
-                                    <HistoryItem key={item.id} item={item} />
+                                    <HistoryItem key={item._id} item={item} />
                                 ))}
                             </div>
                         </div>
