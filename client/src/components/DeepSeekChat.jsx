@@ -96,7 +96,7 @@ const DeepSeekChat = ({ user }) => {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 mt-6">
             <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
