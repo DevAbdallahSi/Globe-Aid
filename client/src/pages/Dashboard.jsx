@@ -172,8 +172,8 @@ const UserDashboard = ({ user, openChatPopup }) => {
                     <span className="text-gray-400">0 requests</span>
                 )}
                 <div className="flex items-center">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                    <span>{service.rating}</span>
+                    {/* <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" /> */}
+                    {/* <span>{service.rating}</span> */}
                 </div>
             </div>
         </div>
@@ -349,41 +349,65 @@ const UserDashboard = ({ user, openChatPopup }) => {
 
                                 <div className="space-y-4 overflow-y-auto pr-2" style={{ flex: 1 }}>
                                     {requestedServices.map(req => (
-                                        <div key={req._id} className="bg-gray-50 hover:bg-white transition shadow-sm border border-gray-100 hover:border-emerald-300 rounded-xl p-5 group">
+                                        <div key={req._id} className="bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-lg hover:border-gray-300 transition-all duration-200 group">
+                                            {/* Header with Status */}
                                             <div className="flex items-start justify-between mb-3">
                                                 <div className="flex-1">
-                                                    <h3 className="font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">
+                                                    <h3 className="text-base font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
                                                         {req.service.title}
                                                     </h3>
-                                                    <p className="text-sm text-gray-500 mt-1">{req.service.category}</p>
+                                                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                                                        <span className="bg-gray-100 px-2 py-1 rounded-md text-xs font-medium">
+                                                            {req.service.category}
+                                                        </span>
+                                                        <span>•</span>
+                                                        <span>{req.service.duration}h</span>
+                                                        <span>•</span>
+                                                        <span>{req.service.location}</span>
+                                                    </div>
                                                 </div>
-                                                <span className={`text-xs font-medium px-2 py-1 rounded-full self-start
-                                                    ${req.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                        req.status === 'accepted' ? 'bg-green-100 text-green-700' :
-                                                            'bg-red-100 text-red-700'}`}>
-                                                    {req.status}
+
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ml-3
+      ${req.status === 'pending' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
+                                                        req.status === 'accepted' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' :
+                                                            'bg-red-100 text-red-700 border border-red-200'}`}>
+                                                    <div className={`w-1.5 h-1.5 rounded-full mr-1.5
+        ${req.status === 'pending' ? 'bg-amber-400' :
+                                                            req.status === 'accepted' ? 'bg-emerald-400' : 'bg-red-400'}`}></div>
+                                                    {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
                                                 </span>
                                             </div>
 
-                                            <p className="text-sm text-gray-700 mb-3">{req.service.description}</p>
-
-                                            <div className="flex flex-wrap items-center justify-between text-sm text-gray-500 mb-3">
-                                                <span>Duration: {req.service.duration}h</span>
-                                                <span>Location: {req.service.location}</span>
+                                            {/* Provider Info & Description in one row */}
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="flex items-center space-x-2">
+                                                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                                                        <span className="text-xs font-medium text-blue-600">
+                                                            {(req.service.username || req.service.user?.name || "U").charAt(0).toUpperCase()}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-sm text-gray-600">
+                                                        {req.service.username || req.service.user?.name || "Unknown Provider"}
+                                                    </span>
+                                                </div>
                                             </div>
 
-                                            <div className="flex gap-4 justify-end">
+                                            {/* Action Buttons */}
+                                            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-gray-100">
                                                 <button
                                                     onClick={() => handleCancelRequest(req._id)}
-                                                    className="text-red-600 hover:underline text-sm"
+                                                    className="px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors"
                                                 >
                                                     Cancel
                                                 </button>
                                                 <button
                                                     onClick={() => openChatPopup(req.service.user, req.service.username)}
-                                                    className="text-emerald-600 hover:underline text-sm"
+                                                    className="px-3 py-1.5 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors flex items-center space-x-1"
                                                 >
-                                                    Open Chat
+                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-4.126-.993L3 20l1.993-5.874A8.955 8.955 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
+                                                    </svg>
+                                                    <span>Chat</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -462,10 +486,10 @@ const UserDashboard = ({ user, openChatPopup }) => {
 
                                                 {/* Status Badge */}
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${req.status === "pending"
-                                                        ? "bg-yellow-100 text-yellow-800"
-                                                        : req.status === "accepted"
-                                                            ? "bg-green-100 text-green-800"
-                                                            : "bg-red-100 text-red-800"
+                                                    ? "bg-yellow-100 text-yellow-800"
+                                                    : req.status === "accepted"
+                                                        ? "bg-green-100 text-green-800"
+                                                        : "bg-red-100 text-red-800"
                                                     }`}>
                                                     {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
                                                 </span>
