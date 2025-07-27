@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Service = require('../models/service.model');
 const ServiceRequest = require('../models/serviceRequest.model');
+const User = require('../models/user.model');
 
 const addService = async (req, res) => {
     const { title, category, description, duration, location } = req.body;
@@ -176,25 +177,44 @@ const updateServiceRequestStatus = async (req, res) => {
     }
 
     try {
-        const updated = await ServiceRequest.findByIdAndUpdate(
-            requestId,
-            { status },
-            { new: true }
-        ).populate('requester', 'name email');
+        const request = await ServiceRequest.findById(requestId)
+            .populate('requester', 'name email hoursSpent')
+            .populate('service'); // Includes service with duration and user (provider)
 
-        if (!updated) {
+        if (!request) {
             return res.status(404).json({ message: "Request not found" });
         }
 
-        // ✅ If declined, remove requester from Service.requests array
+        request.status = status;
+        await request.save();
+
         if (status === 'declined') {
+            // ❌ Remove requester from the service's request list
             await Service.findByIdAndUpdate(
-                updated.service,
-                { $pull: { requests: updated.requester._id } }
+                request.service._id,
+                { $pull: { requests: request.requester._id } }
             );
         }
 
-        res.status(200).json(updated);
+        if (status === 'accepted') {
+            const duration = request.service.duration;
+            const providerId = request.service.user;
+            const requesterId = request.requester._id;
+
+            // ✅ Add to provider's hoursEarned
+            await User.findByIdAndUpdate(
+                providerId,
+                { $inc: { hoursEarned: duration } }
+            );
+
+            // ✅ Add to requester's hoursSpent
+            await User.findByIdAndUpdate(
+                requesterId,
+                { $inc: { hoursSpent: duration } }
+            );
+        }
+
+        res.status(200).json(request);
     } catch (err) {
         console.error("❌ Failed to update status:", err.message);
         res.status(500).json({ message: "Error updating request status", error: err.message });

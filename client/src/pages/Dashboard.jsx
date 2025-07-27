@@ -195,6 +195,8 @@ const UserDashboard = ({ user, openChatPopup }) => {
                 prev.map(r => r._id === req._id ? { ...r, status: 'accepted' } : r)
             );
 
+            await refreshUserStats();
+
             // Start chat
             setChatWith(req.requester);
             setIsModalOpen(false);
@@ -219,6 +221,18 @@ const UserDashboard = ({ user, openChatPopup }) => {
         } catch (err) {
             console.error("❌ Decline failed", err);
             alert("Failed to decline request");
+        }
+    };
+
+    const refreshUserStats = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get('http://localhost:8000/api/users/me', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setUser(res.data);  // this assumes you're passing setUser from parent or managing user state locally
+        } catch (err) {
+            console.error("❌ Failed to refresh user stats:", err);
         }
     };
 
@@ -435,10 +449,10 @@ const UserDashboard = ({ user, openChatPopup }) => {
                                             </div>
 
                                             <span className={`text-xs font-medium px-2 py-1 rounded-full ${req.status === "pending"
-                                                    ? "bg-yellow-100 text-yellow-700"
-                                                    : req.status === "accepted"
-                                                        ? "bg-green-100 text-green-700"
-                                                        : "bg-red-100 text-red-700"
+                                                ? "bg-yellow-100 text-yellow-700"
+                                                : req.status === "accepted"
+                                                    ? "bg-green-100 text-green-700"
+                                                    : "bg-red-100 text-red-700"
                                                 }`}>
                                                 {req.status}
                                             </span>
