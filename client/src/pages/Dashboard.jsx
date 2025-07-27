@@ -189,12 +189,15 @@ const UserDashboard = ({ user, openChatPopup }) => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // Remove it from the modal list
-            setServiceRequests(prev => prev.filter(r => r._id !== req._id));
+            // ✅ Optionally update the request's status in-place
+            setServiceRequests(prev =>
+                prev.map(r => r._id === req._id ? { ...r, status: 'accepted' } : r)
+            );
 
             // Start chat
             setChatWith(req.requester);
             setIsModalOpen(false);
+
         } catch (err) {
             console.error("❌ Approve failed", err);
             alert("Failed to approve request");
@@ -415,14 +418,30 @@ const UserDashboard = ({ user, openChatPopup }) => {
                             ✕
                         </button>
                         <h2 className="text-xl font-bold mb-4">Requests for "{selectedService.title}"</h2>
-                        {serviceRequests.length > 0 ? (
-                            <ul className="space-y-3">
-                                {serviceRequests.map((req) => (
-                                    <li key={req._id} className="py-2 border-b">
-                                        <div className="flex flex-col mb-2">
+                        <ul className="space-y-3">
+                            {serviceRequests.map((req) => (
+                                <li key={req._id} className="py-2 border-b">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex flex-col">
                                             <span className="font-medium text-gray-900">{req.requester?.name || "Unknown"}</span>
                                             <span className="text-sm text-gray-500">{req.requester?.email || "N/A"}</span>
                                         </div>
+
+                                        {/* ✅ Status badge */}
+                                        <span
+                                            className={`text-xs font-medium px-2 py-1 rounded-full ${req.status === 'pending'
+                                                    ? 'bg-yellow-100 text-yellow-700'
+                                                    : req.status === 'accepted'
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : 'bg-red-100 text-red-700'
+                                                }`}
+                                        >
+                                            {req.status}
+                                        </span>
+                                    </div>
+
+                                    {/* ✅ Show buttons only for pending */}
+                                    {req.status === 'pending' && (
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() => handleApprove(req)}
@@ -437,6 +456,7 @@ const UserDashboard = ({ user, openChatPopup }) => {
                                                 Decline
                                             </button>
                                         </div>
+<<<<<<< Updated upstream
 
                                     <li
                                         key={req._id}
@@ -457,9 +477,16 @@ const UserDashboard = ({ user, openChatPopup }) => {
                         ) : (
                             <p className="text-gray-500">No requests yet for this service.</p>
                         )}
+=======
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+>>>>>>> Stashed changes
                     </div>
                 </div>
             )}
+
             {chatWith && (
                 <div className="mt-8">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4">
