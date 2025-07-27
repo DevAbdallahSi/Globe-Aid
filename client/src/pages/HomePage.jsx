@@ -4,17 +4,14 @@ import travelImage from '../assets/images/image2.jpg';
 import axios from 'axios';
 // import EmojiPicker from 'emoji-picker-react';
 
-// Lazy load heavy components
 const AgentChatWidget = lazy(() => import('../components/AgentChatWidget'));
 
-// Loading skeleton component
 const SectionSkeleton = ({ height = "h-64" }) => (
     <div className={`${height} bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded-xl`}>
         <div className="h-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
     </div>
 );
 
-// Intersection Observer hook for lazy loading
 const useIntersectionObserver = (options = {}) => {
     const [isIntersecting, setIsIntersecting] = useState(false);
     const [hasIntersected, setHasIntersected] = useState(false);
@@ -42,7 +39,6 @@ const useIntersectionObserver = (options = {}) => {
     return [ref, isIntersecting, hasIntersected];
 };
 
-// Lazy loaded section wrapper
 const LazySection = ({ children, fallback, className = "" }) => {
     const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
 
@@ -219,13 +215,10 @@ const HomePage = ({ isLoggedIn, user }) => {
         setSubmitting(true);
 
         try {
-            // Submit to backend
             const res = await axios.post('http://localhost:8000/api/feedback', feedback);
 
-            // Append new feedback to the display list
             setAllFeedback((prev) => [res.data, ...prev]);
 
-            // Reset form
             setFeedback({
                 author: '',
                 role: '',
@@ -268,7 +261,6 @@ const HomePage = ({ isLoggedIn, user }) => {
     const CountryPopup = ({ country, onClose }) => {
         const popupRef = useRef(null);
 
-        // Close when clicking outside
         useEffect(() => {
             const handleClickOutside = (event) => {
                 if (popupRef.current && !popupRef.current.contains(event.target)) {
@@ -284,7 +276,6 @@ const HomePage = ({ isLoggedIn, user }) => {
 
         if (!country) return null;
 
-        // Country-specific data
         const countryData = {
             palestine: {
                 language: "Arabic is the primary language; English is understood in major cities and by youth.",
@@ -527,14 +518,12 @@ const HomePage = ({ isLoggedIn, user }) => {
         const searchInputRef = useRef(null);
         const [searchTerm, setSearchTerm] = useState('');
 
-        // Focus the input when the popup opens
         useEffect(() => {
             if (searchInputRef.current) {
                 searchInputRef.current.focus();
             }
         }, []);
 
-        // Close when clicking outside
         useEffect(() => {
             const handleClickOutside = (event) => {
                 if (popupRef.current && !popupRef.current.contains(event.target)) {
@@ -649,26 +638,14 @@ const HomePage = ({ isLoggedIn, user }) => {
                     </div>
                 </section>
 
-                {/* Get Started Section */}
-                <LazySection
-                    fallback={<SectionSkeleton height="h-32" />}
-                    className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-8 sm:py-12 md:py-16 text-center relative"
-                >
-                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/20 via-transparent to-purple-100/20"></div>
-                    <div className="w-full max-w-2xl mx-auto px-3 sm:px-4 md:px-6 relative z-10">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Start Your Journey</h2>
-                        <p className="text-gray-700 text-sm sm:text-base md:text-lg leading-relaxed">Select your country or audience to receive tailored support and tools.</p>
-                    </div>
-                </LazySection>
-
                 {/* Countries Section */}
                 <LazySection
                     fallback={<SectionSkeleton height="h-96" />}
                     className="bg-gradient-to-br from-white via-gray-50 to-indigo-50/30 py-8 sm:py-12 md:py-16 relative"
                 >
                     <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-3 sm:mb-4 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent">Choose Your Destination</h2>
-                        <p className="text-sm sm:text-base md:text-lg text-gray-600 text-center mb-6 sm:mb-8 md:mb-12 max-w-4xl mx-auto leading-relaxed">Select the country you're exploring to get personalized cultural insights and support</p>
+                        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-3 sm:mb-4 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 bg-clip-text text-transparent">Start Your Journey</h2>
+                        <p className="text-sm sm:text-base md:text-lg text-gray-600 text-center mb-6 sm:mb-8 md:mb-12 max-w-4xl mx-auto leading-relaxed">Select your country or audience to receive tailored support and tools.</p>
                         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8 mt-6 sm:mt-8">
                             {countries.map((country, index) => (
                                 <div

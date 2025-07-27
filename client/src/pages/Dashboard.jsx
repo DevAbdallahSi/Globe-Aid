@@ -22,7 +22,7 @@ import { User } from 'lucide-react';
 
 
 
-const UserDashboard = ({ user }) => {
+const UserDashboard = ({ user, openChatPopup }) => {
     const [isOnline, setIsOnline] = useState(true);
 
     const [chatWith, setChatWith] = useState(null);
@@ -221,8 +221,6 @@ const UserDashboard = ({ user }) => {
 
 
 
-
-
     if (!user) return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-4 sm:px-6 lg:px-8 py-6 relative">
@@ -231,10 +229,8 @@ const UserDashboard = ({ user }) => {
                 <AgentChatWidget />
             </div>
 
-
-
             {/* Header */}
-            <div className="max-w-7xl mx-auto mb-8">
+            <div className="max-w-7xl mx-auto mt-8 mb-8">
                 <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
@@ -357,7 +353,7 @@ const UserDashboard = ({ user }) => {
                                                 Cancel Request
                                             </button>
                                             <button
-                                                onClick={() => navigate(`/chat/${req.service.user}`)}
+                                                onClick={() => openChatPopup(req.service.user)}
                                                 className="text-blue-600 hover:underline text-sm"
                                             >
                                                 Open Chat
@@ -441,6 +437,18 @@ const UserDashboard = ({ user }) => {
                                                 Decline
                                             </button>
                                         </div>
+
+                                    <li
+                                        key={req._id}
+                                        className="flex flex-col py-2 border-b cursor-pointer hover:bg-gray-50"
+                                        onClick={() => {
+                                            openChatPopup(req.requester._id);
+                                            setIsModalOpen(false);
+                                        }}
+                                    >
+                                        <span className="font-medium text-gray-900">{req.requester?.name || "Unknown"}</span>
+                                        <span className="text-sm text-gray-500">{req.requester?.email || "N/A"}</span>
+
                                     </li>
                                 ))}
 
