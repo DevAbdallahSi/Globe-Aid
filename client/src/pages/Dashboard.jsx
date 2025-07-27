@@ -232,7 +232,7 @@ const UserDashboard = ({ user }) => {
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Quick Actions */}
                 <div className="grid sm:grid-cols-2 gap-6">
-                    <button onClick={() => window.location.href = 'http://localhost:5173/deepseek'}
+                    <button onClick={() => navigate('/deepseek')}
                         className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
                     >
                         <div className="flex items-center justify-between">
