@@ -22,10 +22,10 @@ import { User } from 'lucide-react';
 
 
 
-const UserDashboard = ({ user }) => {
+const UserDashboard = ({ user, openChatPopup }) => {
     const [isOnline, setIsOnline] = useState(true);
 
-    const [chatWith, setChatWith] = useState(null); 
+    const [chatWith, setChatWith] = useState(null);
 
 
     const [selectedService, setSelectedService] = useState(null);
@@ -314,7 +314,7 @@ const UserDashboard = ({ user }) => {
                                                 Cancel Request
                                             </button>
                                             <button
-                                                onClick={() => navigate(`/chat/${req.service.user}`)}
+                                                onClick={() => openChatPopup(req.service.user)}
                                                 className="text-blue-600 hover:underline text-sm"
                                             >
                                                 Open Chat
@@ -383,8 +383,8 @@ const UserDashboard = ({ user }) => {
                                         key={req._id}
                                         className="flex flex-col py-2 border-b cursor-pointer hover:bg-gray-50"
                                         onClick={() => {
-                                            setChatWith(req.requester); // sets receiver
-                                            setIsModalOpen(false);      // closes modal
+                                            openChatPopup(req.requester._id);
+                                            setIsModalOpen(false);
                                         }}
                                     >
                                         <span className="font-medium text-gray-900">{req.requester?.name || "Unknown"}</span>

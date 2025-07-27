@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 
 const socket = io('http://localhost:8000'); // Use env in production
 
-const ChatBox = ({ userId, receiverId }) => {
+const ChatBox = ({ userId, receiverId, isOpen, onClose }) => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const messageEndRef = useRef(null);
@@ -82,13 +82,21 @@ const ChatBox = ({ userId, receiverId }) => {
 
     return (
         <div className="chat-container border p-4 max-w-md mx-auto bg-white shadow rounded-lg">
+            <div className="flex justify-between items-center border-b p-2">
+                <h3 className="text-sm font-semibold">Chat</h3>
+                {onClose && (
+                    <button onClick={onClose} className="text-sm text-red-500 hover:underline">
+                        Close
+                    </button>
+                )}
+            </div>
             <div className="overflow-y-auto h-64 space-y-2 mb-2 px-2">
                 {messages.map((msg, idx) => (
                     <div
                         key={idx}
                         className={`p-2 rounded max-w-xs ${msg.from === 'self'
-                                ? 'bg-blue-500 text-white ml-auto'
-                                : 'bg-gray-200 text-black mr-auto'
+                            ? 'bg-blue-500 text-white ml-auto'
+                            : 'bg-gray-200 text-black mr-auto'
                             }`}
                     >
                         {msg.content}
