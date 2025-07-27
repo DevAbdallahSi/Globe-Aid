@@ -11,14 +11,6 @@ const ProfilePage = () => {
     const [editData, setEditData] = useState(null);
     const navigate = useNavigate();
 
-    const timeBankStats = {
-        hoursEarned: 47.5,
-        hoursSpent: 32.0,
-        balance: 15.5,
-        totalExchanges: 23,
-        rating: 4.9,
-        memberSince: 'March 2023',
-    };
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -37,6 +29,9 @@ const ProfilePage = () => {
                     email: user.email || '',
                     language: user.language || 'English',
                     country: user.country || 'United States',
+                    hoursEarned: user.hoursEarned || 0,
+                    hoursSpent: user.hoursSpent || 0,
+                    memberSince: user.createdAt ? new Date(user.createdAt).toLocaleString('default', { month: 'long', year: 'numeric' }) : 'N/A',
                     preferences: user.preferences || {
                         emailNotifications: true,
                         smsNotifications: false,
@@ -45,6 +40,7 @@ const ProfilePage = () => {
                         marketingEmails: false
                     }
                 };
+
 
                 setProfileData(formatted);
                 setEditData(formatted);
@@ -186,29 +182,24 @@ const ProfilePage = () => {
                         <div className="space-y-3">
                             <div className="flex justify-between bg-green-50 px-4 py-3 rounded-lg border border-green-100">
                                 <span className="text-gray-700">Hours Earned</span>
-                                <strong className="text-green-600">{timeBankStats.hoursEarned}h</strong>
+                                <strong className="text-green-600">{profileData.hoursEarned}h</strong>
                             </div>
                             <div className="flex justify-between bg-red-50 px-4 py-3 rounded-lg border border-red-100">
                                 <span className="text-gray-700">Hours Spent</span>
-                                <strong className="text-red-600">{timeBankStats.hoursSpent}h</strong>
+                                <strong className="text-red-600">{profileData.hoursSpent}h</strong>
                             </div>
                             <div className="flex justify-between bg-blue-50 px-4 py-3 rounded-lg border border-blue-100">
                                 <span className="text-gray-700">Current Balance</span>
-                                <strong className="text-blue-600">{timeBankStats.balance}h</strong>
-                            </div>
-                            <div className="flex justify-between bg-gray-50 px-4 py-3 rounded-lg border border-gray-100">
-                                <span className="text-gray-700">Total Exchanges</span>
-                                <strong className="text-gray-900">{timeBankStats.totalExchanges}</strong>
-                            </div>
-                            <div className="flex justify-between bg-yellow-50 px-4 py-3 rounded-lg border border-yellow-100">
-                                <span className="text-gray-700">Rating</span>
-                                <strong className="text-yellow-600">{timeBankStats.rating}/5.0</strong>
+                                <strong className="text-blue-600">
+                                    {(profileData.hoursEarned - profileData.hoursSpent).toFixed(1)}h
+                                </strong>
                             </div>
                             <p className="text-center text-sm text-gray-500 pt-2 border-t border-gray-200">
-                                Member since {timeBankStats.memberSince}
+                                Member since {profileData.memberSince}
                             </p>
                         </div>
                     </div>
+
 
                     {/* Account Actions */}
                     <div className="w-full bg-white rounded-xl shadow-sm p-6">
@@ -225,29 +216,29 @@ const ProfilePage = () => {
 
                 {/* Delete Modal */}
                 {showDeleteModal && (
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-        <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl border border-gray-200">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Delete Account</h3>
-            <p className="text-gray-600 mb-6">
-                Are you sure you want to delete your account? This action cannot be undone and you will lose all your TimeBank hours and transaction history.
-            </p>
-            <div className="flex gap-3">
-                <button
-                    onClick={handleDeleteAccount}
-                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-                >
-                    Yes, Delete
-                </button>
-                <button
-                    onClick={() => setShowDeleteModal(false)}
-                    className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
-                >
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
-)}
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+                        <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl border border-gray-200">
+                            <h3 className="text-lg font-semibold mb-4 text-gray-900">Delete Account</h3>
+                            <p className="text-gray-600 mb-6">
+                                Are you sure you want to delete your account? This action cannot be undone and you will lose all your TimeBank hours and transaction history.
+                            </p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleDeleteAccount}
+                                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                                >
+                                    Yes, Delete
+                                </button>
+                                <button
+                                    onClick={() => setShowDeleteModal(false)}
+                                    className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
