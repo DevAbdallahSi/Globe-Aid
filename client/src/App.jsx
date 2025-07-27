@@ -17,19 +17,22 @@ import { useParams } from 'react-router-dom';
 const App = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState(null);
+    const [authLoading, setAuthLoading] = useState(true);
     const navigate = useNavigate();
 
     // Fetch user on app load if token exists
     useEffect(() => {
         const token = localStorage.getItem('token');
-        if (!token) return;
+        if (!token) {
+            setAuthLoading(false); // ✅ mark auth as finished even if no token
+            return;
+        }
 
         const fetchUser = async () => {
             try {
                 const res = await axios.get('http://localhost:8000/api/users/me', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                console.log(res.data)
                 setUser(res.data);
                 setIsLoggedIn(true);
             } catch (err) {
@@ -37,11 +40,14 @@ const App = () => {
                 setIsLoggedIn(false);
                 setUser(null);
                 localStorage.removeItem('token');
+            } finally {
+                setAuthLoading(false); // ✅ done checking auth
             }
         };
 
         fetchUser();
     }, []);
+
 
     const ChatWrapper = ({ user }) => {
         const { receiverId } = useParams();
@@ -62,8 +68,16 @@ const App = () => {
         localStorage.removeItem('token');
         navigate('/');
     };
+    if (authLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-gray-600 text-lg font-medium animate-pulse">Checking authentication...</p>
+            </div>
+        );
+    }
 
     return (
+
         <div className="w-full overflow-x-hidden">
             {/* Navbar appears on all pages */}
             <Navbar
@@ -71,7 +85,6 @@ const App = () => {
                 user={user}
                 onLogout={handleLogout}
             />
-
             {/* Add top padding so content is not covered by fixed Navbar */}
             <div className="pt-16">
                 {/* Routes for different pages */}
@@ -113,7 +126,7 @@ const App = () => {
                         path="/deepseek"
                         element={
                             isLoggedIn && user ? (
-                                <DeepSeekChat />
+                                <DeepSeekChat user={user} />
                             ) : (
                                 <AuthComponent onLogin={handleLogin} />
                             )
