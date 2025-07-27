@@ -304,106 +304,101 @@ const UserDashboard = ({ user, openChatPopup }) => {
                 </div>
 
                 {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2">
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Left Column: Your Services */}
+                    <div>
+                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-full max-h-[500px] flex flex-col">
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-xl font-bold text-gray-900 flex items-center">
-                                    <Globe className="w-6 h-6 mr-3 text-blue-600" />Your TimeBank Services
+                                    <Globe className="w-6 h-6 mr-3 text-blue-600" />
+                                    Your TimeBank Services
                                 </h2>
-                                <button className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl transition-colors text-sm font-medium">
-                                    View All
-                                </button>
+
                             </div>
-                            <div className="space-y-4">
+                            <div className="space-y-4 overflow-y-auto pr-2" style={{ flex: 1 }}>
                                 {services.map(service => (<ServiceCard key={service._id} service={service} />))}
                             </div>
                         </div>
                     </div>
 
+                    {/* Right Column: Services You've Requested */}
                     {requestedServices.length > 0 && (
-                        <div className="mt-10">
-                            <h2 className="text-lg font-semibold text-gray-800 mb-4">Services You've Requested</h2>
-                            <div className="space-y-4">
-                                {requestedServices.map(req => (
-                                    <div key={req._id} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <div>
-                                                <h3 className="text-gray-900 font-semibold">{req.service.title}</h3>
-                                                <p className="text-sm text-gray-500">{req.service.category}</p>
+                        <div>
+                            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 h-full max-h-[500px] flex flex-col">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                                        <Clock className="w-6 h-6 mr-3 text-emerald-600" />
+                                        Services You've Requested
+                                    </h2>
+
+                                </div>
+
+                                <div className="space-y-4 overflow-y-auto pr-2" style={{ flex: 1 }}>
+                                    {requestedServices.map(req => (
+                                        <div key={req._id} className="bg-gray-50 hover:bg-white transition shadow-sm border border-gray-100 hover:border-emerald-300 rounded-xl p-5 group">
+                                            <div className="flex items-start justify-between mb-3">
+                                                <div className="flex-1">
+                                                    <h3 className="font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">
+                                                        {req.service.title}
+                                                    </h3>
+                                                    <p className="text-sm text-gray-500 mt-1">{req.service.category}</p>
+                                                </div>
+                                                <span className={`text-xs font-medium px-2 py-1 rounded-full self-start
+                                                    ${req.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                        req.status === 'accepted' ? 'bg-green-100 text-green-700' :
+                                                            'bg-red-100 text-red-700'}`}>
+                                                    {req.status}
+                                                </span>
                                             </div>
-                                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${req.status === 'pending'
-                                                ? 'bg-yellow-100 text-yellow-700'
-                                                : req.status === 'accepted'
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-red-100 text-red-700'
-                                                }`}>
-                                                {req.status}
-                                            </span>
-                                        </div>
 
-                                        <p className="text-sm text-gray-700 mb-2">{req.service.description}</p>
+                                            <p className="text-sm text-gray-700 mb-3">{req.service.description}</p>
 
-                                        <div className="flex flex-wrap justify-between items-center text-sm text-gray-500 mb-3">
-                                            <span>Duration: {req.service.duration}h</span>
-                                            <span>Location: {req.service.location}</span>
-                                        </div>
+                                            <div className="flex flex-wrap items-center justify-between text-sm text-gray-500 mb-3">
+                                                <span>Duration: {req.service.duration}h</span>
+                                                <span>Location: {req.service.location}</span>
+                                            </div>
 
-                                        <div className="flex justify-between items-center">
-                                            <button
-                                                onClick={() => handleCancelRequest(req._id)}
-                                                className="text-red-600 hover:underline text-sm"
-                                            >
-                                                Cancel Request
-                                            </button>
-                                            <button
-                                                onClick={() => openChatPopup(req.service.user, req.service.username)}
-                                                className="text-blue-600 hover:underline text-sm"
-                                            >
-                                                Open Chat
-                                            </button>
+                                            <div className="flex gap-4 justify-end">
+                                                <button
+                                                    onClick={() => handleCancelRequest(req._id)}
+                                                    className="text-red-600 hover:underline text-sm"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    onClick={() => openChatPopup(req.service.user, req.service.username)}
+                                                    className="text-emerald-600 hover:underline text-sm"
+                                                >
+                                                    Open Chat
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     )}
-                    <div className="space-y-6">
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                                <TrendingUp className="w-6 h-6 mr-3 text-green-600" />Recent Activity
-                            </h2>
-                            <div className="space-y-4">
-                                {recentActivity.map((activity, index) => (
-                                    <div key={index} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors">
-                                        <div className={`w-2 h-2 rounded-full mt-2 ${activity.type === 'chat' ? 'bg-blue-500' : activity.type === 'service' ? 'bg-green-500' : 'bg-purple-500'}`} />
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm text-gray-900 font-medium">{activity.message}</p>
-                                            <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-6 text-white">
-                            <h3 className="text-lg font-bold mb-4">Community Impact</h3>
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-purple-100">Global Reach</span>
-                                    <span className="font-bold">12 Countries</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-purple-100">Languages</span>
-                                    <span className="font-bold">5 Supported</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-purple-100">Community Rank</span>
-                                    <span className="font-bold">Top 15%</span>
+                </div>
+
+                {/* Recent Activity Section */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                        <TrendingUp className="w-6 h-6 mr-3 text-green-600" />
+                        Recent Activity
+                    </h2>
+                    <div className="space-y-4">
+                        {recentActivity.map((activity, index) => (
+                            <div key={index} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                                <div className={`w-2 h-2 rounded-full mt-2 ${activity.type === 'chat' ? 'bg-blue-500' : activity.type === 'service' ? 'bg-green-500' : 'bg-purple-500'}`} />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm text-gray-900 font-medium">{activity.message}</p>
+                                    <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
                                 </div>
                             </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
+
             </div>
 
 
@@ -435,10 +430,10 @@ const UserDashboard = ({ user, openChatPopup }) => {
                                             </div>
 
                                             <span className={`text-xs font-medium px-2 py-1 rounded-full ${req.status === "pending"
-                                                    ? "bg-yellow-100 text-yellow-700"
-                                                    : req.status === "accepted"
-                                                        ? "bg-green-100 text-green-700"
-                                                        : "bg-red-100 text-red-700"
+                                                ? "bg-yellow-100 text-yellow-700"
+                                                : req.status === "accepted"
+                                                    ? "bg-green-100 text-green-700"
+                                                    : "bg-red-100 text-red-700"
                                                 }`}>
                                                 {req.status}
                                             </span>
