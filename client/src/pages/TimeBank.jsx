@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Clock, Plus, Search, User, Calendar, Star, ArrowRight, Gift } from 'lucide-react';
 import AgentChatWidget from '../components/AgentChatWidget';
+import socket from '../socket'; // adjust path if needed
+
 
 import axios from 'axios';
 
@@ -73,10 +75,6 @@ const TimeBank = () => {
                     </div>
                 </div>
                 <div className="text-right">
-                    <div className="flex items-center text-yellow-500 mb-1">
-                        <Star className="w-4 h-4 fill-current" />
-                        <span className="text-sm ml-1">{service.rating}</span>
-                    </div>
                     <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
                         {service.category}
                     </span>
@@ -128,7 +126,7 @@ const TimeBank = () => {
     const handleOfferService = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:8000/api/services', {
+            await axios.post('http://localhost:8000/api/services', {
                 title,
                 category,
                 description,
@@ -141,36 +139,55 @@ const TimeBank = () => {
             });
 
             alert('Service offered successfully!');
+
+            // ✅ Reset form
             setTitle('');
-            setCategory('');
+            setCategory('Education');
             setDescription('');
             setDuration('');
             setLocation('');
-            setActiveTab('browse'); // Go back to browse after offering
+
+            // ✅ Switch to browse
+            setActiveTab('browse');
+
+            // ✅ Immediately fetch updated services list
+            fetchServices(); // <-- key update
+
         } catch (err) {
             alert('Failed to offer service');
             console.error(err);
         }
     };
+    const fetchServices = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get('http://localhost:8000/api/services/others', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setServices(res.data);
+        } catch (err) {
+            console.error('Failed to fetch services:', err);
+        }
+    };
 
 
     useEffect(() => {
-        const fetchServices = async () => {
-            if (activeTab !== 'browse') return; // Only fetch when browsing
-            try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:8000/api/services/others', {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-                setServices(res.data);
-            } catch (err) {
-                console.error('Failed to fetch services:', err);
-            }
+        fetchServices();
+    }, [activeTab]);
+
+    useEffect(() => {
+        // Only run in "browse" tab to update others' services
+        if (activeTab !== 'browse') return;
+
+        const handleNewService = (newService) => {
+            setServices((prev) => [newService, ...prev]);
         };
 
-        fetchServices();
+        socket.on('newService', handleNewService);
+
+        return () => {
+            socket.off('newService', handleNewService);
+        };
     }, [activeTab]);
 
     const refreshUserStats = async () => {
@@ -333,7 +350,7 @@ const TimeBank = () => {
                         {/* Services Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {filteredServices.map(service => (
-                                <ServiceCard key={service.id} service={service} />
+                                <ServiceCard key={service._id} service={service} />
                             ))}
                         </div>
 
