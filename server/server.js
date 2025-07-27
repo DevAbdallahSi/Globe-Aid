@@ -8,7 +8,6 @@ const deepseekRoutes = require('./routes/deepseek.route');
 const chatRoutes = require('./routes/messages.route');
 const Message = require('./models/Message');
 const feedbackRoutes = require('./routes/feedback.route');
-const timeBankRoutes = require('./routes/timeBank.Routes');
 // Load .env config
 dotenv.config();
 
@@ -33,7 +32,6 @@ app.use('/api/services', require('./routes/serviceRoutes.route'));
 app.get('/', (req, res) => res.send('API running...'));
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/services',require('./routes/serviceRoutes.route'))
-app.use('/api/timebank', timeBankRoutes);
 
 
 // Create HTTP server
