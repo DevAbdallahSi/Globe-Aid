@@ -4,17 +4,14 @@ import travelImage from '../assets/images/image2.jpg';
 import axios from 'axios';
 // import EmojiPicker from 'emoji-picker-react';
 
-// Lazy load heavy components
 const AgentChatWidget = lazy(() => import('../components/AgentChatWidget'));
 
-// Loading skeleton component
 const SectionSkeleton = ({ height = "h-64" }) => (
     <div className={`${height} bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded-xl`}>
         <div className="h-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
     </div>
 );
 
-// Intersection Observer hook for lazy loading
 const useIntersectionObserver = (options = {}) => {
     const [isIntersecting, setIsIntersecting] = useState(false);
     const [hasIntersected, setHasIntersected] = useState(false);
@@ -42,7 +39,6 @@ const useIntersectionObserver = (options = {}) => {
     return [ref, isIntersecting, hasIntersected];
 };
 
-// Lazy loaded section wrapper
 const LazySection = ({ children, fallback, className = "" }) => {
     const [ref, isIntersecting, hasIntersected] = useIntersectionObserver();
 
@@ -219,13 +215,10 @@ const HomePage = ({ isLoggedIn, user }) => {
         setSubmitting(true);
 
         try {
-            // Submit to backend
             const res = await axios.post('http://localhost:8000/api/feedback', feedback);
 
-            // Append new feedback to the display list
             setAllFeedback((prev) => [res.data, ...prev]);
 
-            // Reset form
             setFeedback({
                 author: '',
                 role: '',
@@ -268,7 +261,6 @@ const HomePage = ({ isLoggedIn, user }) => {
     const CountryPopup = ({ country, onClose }) => {
         const popupRef = useRef(null);
 
-        // Close when clicking outside
         useEffect(() => {
             const handleClickOutside = (event) => {
                 if (popupRef.current && !popupRef.current.contains(event.target)) {
@@ -284,7 +276,6 @@ const HomePage = ({ isLoggedIn, user }) => {
 
         if (!country) return null;
 
-        // Country-specific data
         const countryData = {
             palestine: {
                 language: "Arabic is the primary language; English is understood in major cities and by youth.",
@@ -527,14 +518,12 @@ const HomePage = ({ isLoggedIn, user }) => {
         const searchInputRef = useRef(null);
         const [searchTerm, setSearchTerm] = useState('');
 
-        // Focus the input when the popup opens
         useEffect(() => {
             if (searchInputRef.current) {
                 searchInputRef.current.focus();
             }
         }, []);
 
-        // Close when clicking outside
         useEffect(() => {
             const handleClickOutside = (event) => {
                 if (popupRef.current && !popupRef.current.contains(event.target)) {
