@@ -181,6 +181,45 @@ const UserDashboard = ({ user, openChatPopup }) => {
     const handleOfferClick = () => {
         navigate('/timebank?tab=offer');
     };
+    const handleApprove = async (req) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put(`http://localhost:8000/api/services/request/${req._id}`,
+                { status: 'accepted' },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // Remove it from the modal list
+            setServiceRequests(prev => prev.filter(r => r._id !== req._id));
+
+            // Start chat
+            setChatWith(req.requester);
+            setIsModalOpen(false);
+        } catch (err) {
+            console.error("❌ Approve failed", err);
+            alert("Failed to approve request");
+        }
+    };
+
+
+
+    const handleDecline = async (requestId) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put(`http://localhost:8000/api/services/request/${requestId}`,
+                { status: 'declined' },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            setServiceRequests(prev => prev.filter(r => r._id !== requestId));
+        } catch (err) {
+            console.error("❌ Decline failed", err);
+            alert("Failed to decline request");
+        }
+    };
+
+
+
 
     if (!user) return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
     return (
@@ -379,6 +418,26 @@ const UserDashboard = ({ user, openChatPopup }) => {
                         {serviceRequests.length > 0 ? (
                             <ul className="space-y-3">
                                 {serviceRequests.map((req) => (
+                                    <li key={req._id} className="py-2 border-b">
+                                        <div className="flex flex-col mb-2">
+                                            <span className="font-medium text-gray-900">{req.requester?.name || "Unknown"}</span>
+                                            <span className="text-sm text-gray-500">{req.requester?.email || "N/A"}</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleApprove(req)}
+                                                className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                                            >
+                                                Approve
+                                            </button>
+                                            <button
+                                                onClick={() => handleDecline(req._id)}
+                                                className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                            >
+                                                Decline
+                                            </button>
+                                        </div>
+
                                     <li
                                         key={req._id}
                                         className="flex flex-col py-2 border-b cursor-pointer hover:bg-gray-50"
@@ -389,11 +448,11 @@ const UserDashboard = ({ user, openChatPopup }) => {
                                     >
                                         <span className="font-medium text-gray-900">{req.requester?.name || "Unknown"}</span>
                                         <span className="text-sm text-gray-500">{req.requester?.email || "N/A"}</span>
+
                                     </li>
-
-
-
                                 ))}
+
+
                             </ul>
                         ) : (
                             <p className="text-gray-500">No requests yet for this service.</p>

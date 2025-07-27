@@ -120,8 +120,11 @@ const getRequestsByService = async (req, res) => {
     const { serviceId } = req.params;
 
     try {
-        const requests = await ServiceRequest.find({ service: serviceId })
-            .populate('requester', 'name email');
+        const requests = await ServiceRequest.find({
+            service: serviceId,
+            status: 'pending'  // Only show pending requests
+        }).populate('requester', 'name email');
+
 
         res.status(200).json(requests);
     } catch (err) {
@@ -161,6 +164,34 @@ const cancelServiceRequest = async (req, res) => {
 };
 
 
+const updateServiceRequestStatus = async (req, res) => {
+    const { requestId } = req.params;
+    const { status } = req.body;
+
+    if (!['accepted', 'declined'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    try {
+        const updated = await ServiceRequest.findByIdAndUpdate(
+            requestId,
+            { status },
+            { new: true }
+        ).populate('requester', 'name email');
+
+        if (!updated) {
+            return res.status(404).json({ message: "Request not found" });
+        }
+
+        res.status(200).json(updated);
+    } catch (err) {
+        console.error("❌ Failed to update status:", err.message);
+        res.status(500).json({ message: "Error updating request status", error: err.message });
+    }
+};
+
+
+
 
 module.exports = {
     addService,
@@ -170,5 +201,6 @@ module.exports = {
     getMyServiceRequests,
     getRequestsByService,
     getServicesUserRequested,
-    cancelServiceRequest
+    cancelServiceRequest,
+    updateServiceRequestStatus
 };
