@@ -25,7 +25,7 @@ import { User } from 'lucide-react';
 const UserDashboard = ({ user }) => {
     const [isOnline, setIsOnline] = useState(true);
 
-    const [chatWith, setChatWith] = useState(null); // stores the receiver object
+    const [chatWith, setChatWith] = useState(null); 
 
 
     const [selectedService, setSelectedService] = useState(null);
@@ -232,7 +232,9 @@ const UserDashboard = ({ user }) => {
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Quick Actions */}
                 <div className="grid sm:grid-cols-2 gap-6">
-                    <button className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
+                    <button onClick={() => navigate('/deepseek')}
+                        className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                    >
                         <div className="flex items-center justify-between">
                             <div className="text-left">
                                 <h3 className="text-xl md:text-2xl font-bold mb-2">Launch AI Chat</h3>
@@ -241,7 +243,6 @@ const UserDashboard = ({ user }) => {
                             <MessageCircle className="w-8 h-8 md:w-12 md:h-12 group-hover:scale-110 transition-transform" />
                         </div>
                     </button>
-                    
 
                     <button onClick={handleOfferClick}
                         className="group bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
