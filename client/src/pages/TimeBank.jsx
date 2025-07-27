@@ -27,17 +27,7 @@ const TimeBank = () => {
 
 
     const [services, setServices] = useState([]);
-
-
-
-
-    const [timeHistory, setTimeHistory] = useState([
-        { id: 1, type: "earned", service: "Tutoring Math", hours: 2, date: "2024-01-20", with: "John D." },
-        { id: 2, type: "spent", service: "Car Repair", hours: 1.5, date: "2024-01-18", with: "Mike S." },
-        { id: 3, type: "earned", service: "Dog Walking", hours: 1, date: "2024-01-15", with: "Lisa P." },
-        { id: 4, type: "spent", service: "Language Exchange", hours: 2, date: "2024-01-12", with: "Ana M." }
-    ]);
-
+    const [timeHistory, setTimeHistory] = useState([]);
     const [userBalance] = useState(4.5); // Time credits balance
 
     const categories = ["all", "Education", "Cooking", "Gardening", "Technology", "Health", "Arts", "Home", "Other"];
