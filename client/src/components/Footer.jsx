@@ -14,7 +14,7 @@ const Footer = () => {
                         </h3>
                         <p className="text-gray-400 text-sm leading-snug">
                             Bridging cultural gaps with AI-powered tools<br />
-                            and community support.
+                            and community support
                         </p>
                     </div>
 
@@ -22,7 +22,7 @@ const Footer = () => {
                     <div className="w-full md:w-1/2 flex flex-col items-center text-center px-4 space-y-1">
                         <h4 className="text-base font-semibold">Contact Us</h4>
                         <p className="text-gray-400 text-sm">help@globeaid.com</p>
-                        <p className="text-gray-400 text-sm">+970 569294589</p>
+                        <p className="text-gray-400 text-sm">+970 56 929 4589</p>
                         <div className="flex justify-center space-x-4 pt-1">
                             {/* Facebook */}
                             <a href="#" aria-label="Facebook" className="text-gray-400 hover:text-white transition">
