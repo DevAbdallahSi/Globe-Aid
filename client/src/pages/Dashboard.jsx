@@ -182,8 +182,6 @@ const UserDashboard = ({ user }) => {
         navigate('/timebank?tab=offer');
     };
 
-
-
     if (!user) return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-4 sm:px-6 lg:px-8 py-6 relative">
@@ -192,10 +190,8 @@ const UserDashboard = ({ user }) => {
                 <AgentChatWidget />
             </div>
 
-
-
             {/* Header */}
-            <div className="max-w-7xl mx-auto mb-8">
+            <div className="max-w-7xl mx-auto mt-8 mb-8">
                 <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
