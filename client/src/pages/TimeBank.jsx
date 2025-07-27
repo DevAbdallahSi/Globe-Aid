@@ -28,7 +28,11 @@ const TimeBank = () => {
 
     const [services, setServices] = useState([]);
     const [timeHistory, setTimeHistory] = useState([]);
-    const [userBalance] = useState(4.5); // Time credits balance
+    const [userStats, setUserStats] = useState({
+        hoursEarned: 0,
+        hoursSpent: 0,
+        balance: 0
+    });
 
     const categories = ["all", "Education", "Cooking", "Gardening", "Technology", "Health", "Arts", "Home", "Other"];
 
@@ -38,9 +42,6 @@ const TimeBank = () => {
         const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
         return matchesSearch && matchesCategory;
     });
-
-    const totalEarned = timeHistory.filter(h => h.type === 'earned').reduce((sum, h) => sum + h.hours, 0);
-    const totalSpent = timeHistory.filter(h => h.type === 'spent').reduce((sum, h) => sum + h.hours, 0);
 
 
     const handleRequestService = async (serviceId) => {
@@ -172,6 +173,27 @@ const TimeBank = () => {
         fetchServices();
     }, [activeTab]);
 
+    const refreshUserStats = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get('http://localhost:8000/api/users/me', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const { hoursEarned, hoursSpent } = res.data;
+            setUserStats({
+                hoursEarned,
+                hoursSpent,
+                balance: hoursEarned - hoursSpent
+            });
+        } catch (err) {
+            console.error("Failed to fetch user stats:", err);
+        }
+    };
+    useEffect(() => {
+        refreshUserStats();
+    }, []);
+
+
     return (
         <div className="min-h-screen bg-gray-50 pt-6">
             {/* Header */}
@@ -187,7 +209,7 @@ const TimeBank = () => {
                         <div className="flex items-center space-x-4">
                             <div className="text-right">
                                 <p className="text-sm text-gray-600">Your Balance</p>
-                                <p className="font-bold text-blue-600">{userBalance} hours</p>
+                                <p className="font-bold text-blue-600">{userStats.balance} hours</p>
                             </div>
                         </div>
                     </div>
@@ -197,11 +219,12 @@ const TimeBank = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Stats Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    {/* Balance */}
                     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">Current Balance</p>
-                                <p className="text-2xl font-bold text-blue-600">{userBalance}h</p>
+                                <p className="text-2xl font-bold text-blue-600">{userStats.balance}h</p>
                             </div>
                             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                                 <Clock className="w-6 h-6 text-blue-600" />
@@ -209,11 +232,12 @@ const TimeBank = () => {
                         </div>
                     </div>
 
+                    {/* Hours Earned */}
                     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">Hours Earned</p>
-                                <p className="text-2xl font-bold text-green-600">{totalEarned}h</p>
+                                <p className="text-2xl font-bold text-green-600">{userStats.hoursEarned}h</p>
                             </div>
                             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                                 <Gift className="w-6 h-6 text-green-600" />
@@ -221,11 +245,12 @@ const TimeBank = () => {
                         </div>
                     </div>
 
+                    {/* Hours Spent */}
                     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">Hours Spent</p>
-                                <p className="text-2xl font-bold text-red-600">{totalSpent}h</p>
+                                <p className="text-2xl font-bold text-red-600">{userStats.hoursSpent}h</p>
                             </div>
                             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                                 <ArrowRight className="w-6 h-6 text-red-600" />
@@ -233,6 +258,7 @@ const TimeBank = () => {
                         </div>
                     </div>
                 </div>
+
 
                 {/* Navigation Tabs */}
                 <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-8">
