@@ -83,7 +83,7 @@ const UserDashboard = ({ user, openChatPopup }) => {
                     }
                 });
                 setRequestedServices(res.data);
-                console.log("req",res.data)
+                console.log("req", res.data)
             } catch (err) {
                 console.error("Failed to fetch requested services:", err);
             }
@@ -182,6 +182,48 @@ const UserDashboard = ({ user, openChatPopup }) => {
     const handleOfferClick = () => {
         navigate('/timebank?tab=offer');
     };
+    const handleApprove = async (req) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put(`http://localhost:8000/api/services/request/${req._id}`,
+                { status: 'accepted' },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // ✅ Optionally update the request's status in-place
+            setServiceRequests(prev =>
+                prev.map(r => r._id === req._id ? { ...r, status: 'accepted' } : r)
+            );
+
+            // Start chat
+            setChatWith(req.requester);
+            setIsModalOpen(false);
+
+        } catch (err) {
+            console.error("❌ Approve failed", err);
+            alert("Failed to approve request");
+        }
+    };
+
+
+
+    const handleDecline = async (requestId) => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put(`http://localhost:8000/api/services/request/${requestId}`,
+                { status: 'declined' },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            setServiceRequests(prev => prev.filter(r => r._id !== requestId));
+        } catch (err) {
+            console.error("❌ Decline failed", err);
+            alert("Failed to decline request");
+        }
+    };
+
+
+
 
     if (!user) return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
     return (
@@ -374,20 +416,61 @@ const UserDashboard = ({ user, openChatPopup }) => {
                         >
                             ✕
                         </button>
-                        <h2 className="text-xl font-bold mb-4">Requests for "{selectedService.title}"</h2>
+                        <h2 className="text-xl font-bold mb-4">
+                            Requests for "{selectedService.title}"
+                        </h2>
+
                         {serviceRequests.length > 0 ? (
                             <ul className="space-y-3">
                                 {serviceRequests.map((req) => (
-                                    <li
-                                        key={req._id}
-                                        className="flex flex-col py-2 border-b cursor-pointer hover:bg-gray-50"
-                                        onClick={() => {
-                                            openChatPopup(req.requester._id, req.requester.name); // ✅ pass both ID and name
-                                            setIsModalOpen(false);
-                                        }}
-                                    >
-                                        <span className="font-medium text-gray-900">{req.requester?.name || "Unknown"}</span>
-                                        <span className="text-sm text-gray-500">{req.requester?.email || "N/A"}</span>
+                                    <li key={req._id} className="py-2 border-b">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex flex-col">
+                                                <span className="font-medium text-gray-900">
+                                                    {req.requester?.name || "Unknown"}
+                                                </span>
+                                                <span className="text-sm text-gray-500">
+                                                    {req.requester?.email || "N/A"}
+                                                </span>
+                                            </div>
+
+                                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${req.status === "pending"
+                                                    ? "bg-yellow-100 text-yellow-700"
+                                                    : req.status === "accepted"
+                                                        ? "bg-green-100 text-green-700"
+                                                        : "bg-red-100 text-red-700"
+                                                }`}>
+                                                {req.status}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex gap-2 flex-wrap">
+                                            {req.status === "pending" && (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleApprove(req)}
+                                                        className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                                                    >
+                                                        Approve
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDecline(req._id)}
+                                                        className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                                    >
+                                                        Decline
+                                                    </button>
+                                                </>
+                                            )}
+                                            <button
+                                                onClick={() => {
+                                                    openChatPopup(req.requester._id, req.requester.name);
+                                                    setIsModalOpen(false);
+                                                }}
+                                                className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                            >
+                                                Open Chat
+                                            </button>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
@@ -397,6 +480,9 @@ const UserDashboard = ({ user, openChatPopup }) => {
                     </div>
                 </div>
             )}
+
+
+
             {chatWith && (
                 <div className="mt-8">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4">

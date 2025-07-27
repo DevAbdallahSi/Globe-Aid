@@ -120,7 +120,7 @@ const getRequestsByService = async (req, res) => {
     const { serviceId } = req.params;
 
     try {
-        const requests = await ServiceRequest.find({ service: serviceId })
+        const requests = await ServiceRequest.find({ service: serviceId })  // ❌ removed status filter
             .populate('requester', 'name email');
 
         res.status(200).json(requests);
@@ -145,20 +145,63 @@ const getServicesUserRequested = async (req, res) => {
 const cancelServiceRequest = async (req, res) => {
     const { requestId } = req.params;
     try {
-        const deleted = await ServiceRequest.findOneAndDelete({
+        const request = await ServiceRequest.findOneAndDelete({
             _id: requestId,
             requester: req.user.id
         });
 
-        if (!deleted) {
+        if (!request) {
             return res.status(404).json({ message: "Request not found or not owned by user" });
         }
+
+        // ✅ Remove user ID from service.requests array
+        await Service.findByIdAndUpdate(
+            request.service,
+            { $pull: { requests: req.user.id } }
+        );
 
         res.status(200).json({ message: "Request canceled successfully" });
     } catch (err) {
         res.status(500).json({ message: "Failed to cancel request", error: err.message });
     }
 };
+
+
+const updateServiceRequestStatus = async (req, res) => {
+    const { requestId } = req.params;
+    const { status } = req.body;
+
+    if (!['accepted', 'declined'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    try {
+        const updated = await ServiceRequest.findByIdAndUpdate(
+            requestId,
+            { status },
+            { new: true }
+        ).populate('requester', 'name email');
+
+        if (!updated) {
+            return res.status(404).json({ message: "Request not found" });
+        }
+
+        // ✅ If declined, remove requester from Service.requests array
+        if (status === 'declined') {
+            await Service.findByIdAndUpdate(
+                updated.service,
+                { $pull: { requests: updated.requester._id } }
+            );
+        }
+
+        res.status(200).json(updated);
+    } catch (err) {
+        console.error("❌ Failed to update status:", err.message);
+        res.status(500).json({ message: "Error updating request status", error: err.message });
+    }
+};
+
+
 
 
 
@@ -170,5 +213,6 @@ module.exports = {
     getMyServiceRequests,
     getRequestsByService,
     getServicesUserRequested,
-    cancelServiceRequest
+    cancelServiceRequest,
+    updateServiceRequestStatus
 };
