@@ -83,7 +83,7 @@ const UserDashboard = ({ user, openChatPopup }) => {
                     }
                 });
                 setRequestedServices(res.data);
-                console.log("req",res.data)
+                console.log("req", res.data)
             } catch (err) {
                 console.error("Failed to fetch requested services:", err);
             }
@@ -434,59 +434,53 @@ const UserDashboard = ({ user, openChatPopup }) => {
                                                 </span>
                                             </div>
 
-                                            <span
-                                                className={`text-xs font-medium px-2 py-1 rounded-full ${req.status === "pending"
-                                                        ? "bg-yellow-100 text-yellow-700"
-                                                        : req.status === "accepted"
-                                                            ? "bg-green-100 text-green-700"
-                                                            : "bg-red-100 text-red-700"
-                                                    }`}
-                                            >
+                                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${req.status === "pending"
+                                                    ? "bg-yellow-100 text-yellow-700"
+                                                    : req.status === "accepted"
+                                                        ? "bg-green-100 text-green-700"
+                                                        : "bg-red-100 text-red-700"
+                                                }`}>
                                                 {req.status}
                                             </span>
                                         </div>
 
-                                        {req.status === "pending" && (
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => handleApprove(req)}
-                                                    className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                                                >
-                                                    Approve
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDecline(req._id)}
-                                                    className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                                                >
-                                                    Decline
-                                                </button>
-                                            </div>
-                                        )}
-
-                                        <div
-                                            className="flex flex-col py-2 mt-2 cursor-pointer hover:bg-gray-50 rounded"
-                                            onClick={() => {
-                                                openChatPopup(req.requester._id);
-                                                setIsModalOpen(false);
-                                            }}
-                                        >
-                                            <span className="font-medium text-gray-900">
-                                                {req.requester?.name || "Unknown"}
-                                            </span>
-                                            <span className="text-sm text-gray-500">
-                                                {req.requester?.email || "N/A"}
-                                            </span>
+                                        <div className="flex gap-2 flex-wrap">
+                                            {req.status === "pending" && (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleApprove(req)}
+                                                        className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                                                    >
+                                                        Approve
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDecline(req._id)}
+                                                        className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                                    >
+                                                        Decline
+                                                    </button>
+                                                </>
+                                            )}
+                                            <button
+                                                onClick={() => {
+                                                    openChatPopup(req.requester._id, req.requester.name);
+                                                    setIsModalOpen(false);
+                                                }}
+                                                className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                            >
+                                                Open Chat
+                                            </button>
                                         </div>
-
                                     </li>
                                 ))}
                             </ul>
-                            
                         ) : (
-                            <p className="text-gray-500">No requests yet for this service.</p>)}
+                            <p className="text-gray-500">No requests yet for this service.</p>
+                        )}
                     </div>
                 </div>
             )}
+
 
 
             {chatWith && (
