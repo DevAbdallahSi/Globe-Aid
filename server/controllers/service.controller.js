@@ -18,15 +18,23 @@ const addService = async (req, res) => {
             location,
             user: userId
         });
+
+        // Populate user so the frontend can display provider name
+        await newService.populate('user', 'name');
+
         console.log("✅ Service created:", newService);
+
+        // ⬇️ Emit the newService event to all connected clients
+        const io = req.app.get('io');
+        io.emit('newService', newService);
 
         res.status(201).json(newService);
     } catch (err) {
         console.error("❌ Failed to create service:", err);
-
         res.status(500).json({ message: 'Error creating service', error: err.message });
     }
 };
+
 
 const getOtherUsersServices = async (req, res) => {
     try {

@@ -73,7 +73,7 @@ socket.on('send_message', async (data) => {
     console.log('❌ Client disconnected:', socket.id);
   });
 });
-
+app.set('io', io);
 // Start server
 const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
