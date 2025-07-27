@@ -417,81 +417,111 @@ const UserDashboard = ({ user, openChatPopup }) => {
 
 
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-                        <button
-                            onClick={() => setIsModalOpen(false)}
-                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
-                        >
-                            ✕
-                        </button>
-                        <h2 className="text-xl font-bold mb-4">
-                            Requests for "{selectedService.title}"
-                        </h2>
+                <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative overflow-hidden">
+                        {/* Header */}
+                        <div className="px-6 py-4 border-b border-gray-100">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-lg font-semibold text-gray-900">
+                                    Service Requests
+                                </h2>
+                                <button
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                >
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <p className="text-sm text-gray-500 mt-1">
+                                "{selectedService.title}"
+                            </p>
+                        </div>
 
-                        {serviceRequests.length > 0 ? (
-                            <ul className="space-y-3">
-                                {serviceRequests.map((req) => (
-                                    <li key={req._id} className="py-2 border-b">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <div className="flex flex-col">
-                                                <span className="font-medium text-gray-900">
-                                                    {req.requester?.name || "Unknown"}
-                                                </span>
-                                                <span className="text-sm text-gray-500">
-                                                    {req.requester?.email || "N/A"}
+                        {/* Content */}
+                        <div className="max-h-96 overflow-y-auto">
+                            {serviceRequests.length > 0 ? (
+                                <div className="p-6 space-y-4">
+                                    {serviceRequests.map((req) => (
+                                        <div key={req._id} className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                            {/* User Info */}
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                                                        <span className="text-sm font-medium text-gray-600">
+                                                            {(req.requester?.name || "U").charAt(0).toUpperCase()}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium text-gray-900">
+                                                            {req.requester?.name || "Unknown User"}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Status Badge */}
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${req.status === "pending"
+                                                        ? "bg-yellow-100 text-yellow-800"
+                                                        : req.status === "accepted"
+                                                            ? "bg-green-100 text-green-800"
+                                                            : "bg-red-100 text-red-800"
+                                                    }`}>
+                                                    {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
                                                 </span>
                                             </div>
 
-                                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${req.status === "pending"
-                                                ? "bg-yellow-100 text-yellow-700"
-                                                : req.status === "accepted"
-                                                    ? "bg-green-100 text-green-700"
-                                                    : "bg-red-100 text-red-700"
-                                                }`}>
-                                                {req.status}
-                                            </span>
+                                            {/* Action Buttons */}
+                                            <div className="flex gap-2">
+                                                {req.status === "pending" && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleApprove(req)}
+                                                            className="flex-1 px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                                                        >
+                                                            Approve
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDecline(req._id)}
+                                                            className="flex-1 px-3 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors"
+                                                        >
+                                                            Decline
+                                                        </button>
+                                                    </>
+                                                )}
+                                                <button
+                                                    onClick={() => {
+                                                        openChatPopup(req.requester._id, req.requester.name);
+                                                        setIsModalOpen(false);
+                                                    }}
+                                                    className={`px-3 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors ${req.status === "pending" ? "flex-none" : "flex-1"
+                                                        }`}
+                                                >
+                                                    Chat
+                                                </button>
+                                            </div>
                                         </div>
-
-                                        <div className="flex gap-2 flex-wrap">
-                                            {req.status === "pending" && (
-                                                <>
-                                                    <button
-                                                        onClick={() => handleApprove(req)}
-                                                        className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                                                    >
-                                                        Approve
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDecline(req._id)}
-                                                        className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                                                    >
-                                                        Decline
-                                                    </button>
-                                                </>
-                                            )}
-                                            <button
-                                                onClick={() => {
-                                                    openChatPopup(req.requester._id, req.requester.name);
-                                                    setIsModalOpen(false);
-                                                }}
-                                                className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                            >
-                                                Open Chat
-                                            </button>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p className="text-gray-500">No requests yet for this service.</p>
-                        )}
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="p-8 text-center">
+                                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8-4 4-4-4m0 0L9 9l-4-4" />
+                                        </svg>
+                                    </div>
+                                    <p className="text-gray-500 text-sm">
+                                        No requests yet for this service.
+                                    </p>
+                                    <p className="text-gray-400 text-xs mt-1">
+                                        Requests will appear here when users are interested.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
-
-
-
             {chatWith && (
                 <div className="mt-8">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4">
