@@ -178,7 +178,7 @@ const DeepSeekChat = ({ user }) => {
                     <div className="space-y-1">
                         <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-700 text-sm">
                             <MessageSquare className="w-4 h-4" />
-                            <span className="truncate">GlobeAid AI Chat</span>
+                            <span className="truncate">GlobeAid AI Chat</spa
                         </div>
                     </div>
                 </div>
