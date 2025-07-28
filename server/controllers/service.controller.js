@@ -47,7 +47,8 @@ const getOtherUsersServices = async (req, res) => {
 
 const getMyServices = async (req, res) => {
     try {
-        const myServices = await Service.find({ user: req.user.id });
+        const myServices = await Service.find({ user: req.user.id })
+            .populate('requests', 'name'); // ✅ Populate requester names if needed
         res.status(200).json(myServices);
     } catch (err) {
         console.error("Error fetching user services:", err);
@@ -75,7 +76,7 @@ const requestService = async (req, res) => {
             return res.status(404).json({ message: 'Service not found' });
         }
 
-        // Prevent duplicate requests
+        // 🚫 Prevent duplicate requests
         const alreadyRequested = await ServiceRequest.findOne({
             service: serviceId,
             requester: userId
@@ -89,23 +90,34 @@ const requestService = async (req, res) => {
         const newRequest = await ServiceRequest.create({
             service: serviceId,
             requester: userId,
-            status: 'pending'  // optional — default is already pending
+            status: 'pending'
         });
 
-        // Optional: update legacy Service.requests[] array
-        if (!Array.isArray(service.requests)) {
-            service.requests = [];
-        }
-        service.requests.push(userId);
-        await service.save();
+        // ✅ Push userId to the service.requests array
+        await Service.findByIdAndUpdate(serviceId, {
+            $addToSet: { requests: userId }  // 👈 prevents duplicates
+        });
 
-        return res.status(200).json({ message: 'Service requested successfully', request: newRequest });
+        // ✅ Emit to the service owner
+        const io = req.app.get('io');
+        io.to(service.user.toString()).emit('newRequestMade', {
+            serviceId: service._id,
+            requesterId: userId,
+            status: newRequest.status
+        });
+
+        return res.status(200).json({
+            message: 'Service requested successfully',
+            request: newRequest
+        });
 
     } catch (err) {
         console.error("❌ Error requesting service:", err);
         res.status(500).json({ message: 'Error requesting service', error: err.message });
     }
 };
+
+
 
 
 

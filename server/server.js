@@ -44,6 +44,8 @@ const io = new Server(server, {
     credentials: true
   }
 });
+app.set('io', io);
+
 // Socket.IO logic
 io.on('connection', (socket) => {
   console.log('🔌 New client connected:', socket.id);
@@ -73,7 +75,6 @@ socket.on('send_message', async (data) => {
     console.log('❌ Client disconnected:', socket.id);
   });
 });
-app.set('io', io);
 // Start server
 const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
