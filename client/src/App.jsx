@@ -121,7 +121,7 @@ const App = () => {
                         path="/dashboard"
                         element={
                             isLoggedIn && user ? (
-                                <UserDashboard user={user} openChatPopup={openChatPopup} />
+                                <UserDashboard user={user} setUser={setUser} openChatPopup={openChatPopup} />
                             ) : (
                                 <AuthComponent onLogin={handleLogin} />
                             )

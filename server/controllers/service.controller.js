@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Service = require('../models/service.model');
 const ServiceRequest = require('../models/serviceRequest.model');
 const User = require('../models/user.model');
+const TimeBank = require('../models/timeBankModel'); // adjust path as needed
 
 const addService = async (req, res) => {
     const { title, category, description, duration, location } = req.body;
@@ -209,7 +210,6 @@ const updateServiceRequestStatus = async (req, res) => {
         await request.save();
 
         if (status === 'declined') {
-            // ❌ Remove requester from the service's request list
             await Service.findByIdAndUpdate(
                 request.service._id,
                 { $pull: { requests: request.requester._id } }
@@ -221,17 +221,36 @@ const updateServiceRequestStatus = async (req, res) => {
             const providerId = request.service.user;
             const requesterId = request.requester._id;
 
-            // ✅ Add to provider's hoursEarned
-            await User.findByIdAndUpdate(
-                providerId,
-                { $inc: { hoursEarned: duration } }
-            );
+            // ✅ Update time stats
+            await User.findByIdAndUpdate(providerId, { $inc: { hoursEarned: duration } });
+            await User.findByIdAndUpdate(requesterId, { $inc: { hoursSpent: duration } });
 
-            // ✅ Add to requester's hoursSpent
-            await User.findByIdAndUpdate(
-                requesterId,
-                { $inc: { hoursSpent: duration } }
-            );
+            // ✅ Create TimeBank entries
+            await TimeBank.create([
+                {
+                    user: providerId,
+                    type: 'earned',
+                    service: request.service.title,
+                    with: request.requester.name,
+                    hours: duration,
+                    date: new Date()
+                },
+                {
+                    user: requesterId,
+                    type: 'spent',
+                    service: request.service.title,
+                    with: request.service.user.name || 'Service Provider',
+                    hours: duration,
+                    date: new Date()
+                }
+            ]);
+
+            // ✅ Emit timebankUpdated event to both users
+            const io = req.app.get('io');
+            if (io) {
+                io.to(providerId.toString()).emit('timebankUpdated');
+                io.to(requesterId.toString()).emit('timebankUpdated');
+            }
         }
 
         res.status(200).json(request);

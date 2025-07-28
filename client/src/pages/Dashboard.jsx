@@ -21,7 +21,7 @@ import ChatBox from '../components/ChatBox';
 import { User } from 'lucide-react';
 import socket from '../socket'; // adjust path if needed
 
-const UserDashboard = ({ user, openChatPopup }) => {
+const UserDashboard = ({ user, setUser , openChatPopup }) => {
     const [isOnline, setIsOnline] = useState(true);
     const [chatWith, setChatWith] = useState(null);
     const [selectedService, setSelectedService] = useState(null);
