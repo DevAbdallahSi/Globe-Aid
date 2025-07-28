@@ -21,7 +21,7 @@ import ChatBox from '../components/ChatBox';
 import { User } from 'lucide-react';
 import socket from '../socket'; // adjust path if needed
 
-const UserDashboard = ({ user, setUser , openChatPopup }) => {
+const UserDashboard = ({ user, setUser, openChatPopup }) => {
     const [isOnline, setIsOnline] = useState(true);
     const [chatWith, setChatWith] = useState(null);
     const [selectedService, setSelectedService] = useState(null);
@@ -315,8 +315,13 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
                                 </h2>
                             </div>
                             <div className="space-y-4 overflow-y-auto pr-2" style={{ flex: 1 }}>
-                                {services.map(service => <ServiceCard key={service._id} service={service} />)}
+                                {[...services]
+                                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // sort newest first
+                                    .map(service => (
+                                        <ServiceCard key={service._id} service={service} />
+                                    ))}
                             </div>
+
                         </div>
                     </div>
 
@@ -400,7 +405,7 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
                     )}
                 </div>
 
-                
+
             </div>
 
             {isModalOpen && (
