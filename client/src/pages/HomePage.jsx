@@ -500,11 +500,11 @@ const HomePage = ({ isLoggedIn, user }) => {
                         <div className="bg-indigo-50 rounded-lg p-4">
                             <h4 className="text-lg font-semibold mb-3">Need specific advice about {country.name}?</h4>
                             <Link
-                                to={`/chat?country=${country.id}`}
+                                to={`/GloabAid?country=${country.id}`}
                                 className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-full inline-flex items-center gap-2 hover:shadow-lg transition-all"
                                 onClick={onClose}
                             >
-                                Chat with our AI Guide
+                                Chat with GloabAid AI Guide
                             </Link>
                         </div>
                     </div>
