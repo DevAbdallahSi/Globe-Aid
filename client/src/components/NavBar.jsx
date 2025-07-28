@@ -41,53 +41,13 @@ const Navbar = ({ isLoggedIn, user, onLogout }) => {
         <nav className={`fixed top-0 w-full z-50 py-2 sm:py-3 md:py-4 bg-slate-900/95 backdrop-blur-xl border-b border-slate-700/50`}>
             <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 flex justify-between items-center">
                 {/* Logo */}
-                <Link 
-                    to="/" 
+                <Link
+                    to="/"
                     className="flex items-center gap-2 sm:gap-3 hover:scale-105 transition-transform duration-300"
                 >
-                    {/* Real Icon - Helping Hands with Globe */}
-                    <div className="relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12">
-                        <svg 
-                            viewBox="0 0 24 24" 
-                            fill="none" 
-                            className="w-full h-full"
-                        >
-                            {/* Globe background */}
-                            <circle 
-                                cx="12" 
-                                cy="12" 
-                                r="10" 
-                                fill="url(#globeGradient)" 
-                                stroke="url(#borderGradient)" 
-                                strokeWidth="1"
-                            />
-                            {/* Helping hands */}
-                            <path 
-                                d="M8 10c0-1 1-2 2-2s2 1 2 2-1 2-2 2-2-1-2-2zm4 4c0-1 1-2 2-2s2 1 2 2-1 2-2 2-2-1-2-2z" 
-                                fill="white" 
-                                opacity="0.9"
-                            />
-                            {/* Connection lines */}
-                            <path 
-                                d="M10 12l4-2m-4 2l4 2" 
-                                stroke="white" 
-                                strokeWidth="1.5" 
-                                strokeLinecap="round" 
-                                opacity="0.7"
-                            />
-                            
-                            <defs>
-                                <linearGradient id="globeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor="#8B5CF6" />
-                                    <stop offset="50%" stopColor="#EC4899" />
-                                    <stop offset="100%" stopColor="#6366F1" />
-                                </linearGradient>
-                                <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor="#A855F7" />
-                                    <stop offset="100%" stopColor="#EC4899" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
+                    {/* Earth Icon - Real emoji instead of custom SVG */}
+                    <div className="text-2xl sm:text-3xl md:text-4xl">
+                        🌍
                     </div>
                     <span className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
                         GlobeAid
@@ -99,17 +59,15 @@ const Navbar = ({ isLoggedIn, user, onLogout }) => {
                     <li className="relative group">
                         <Link
                             to="/"
-                            className={`relative px-3 py-2 font-medium transition-all duration-300 ${
-                                isActiveLink('/') 
-                                    ? 'text-white' 
+                            className={`relative px-3 py-2 font-medium transition-all duration-300 ${isActiveLink('/')
+                                    ? 'text-white'
                                     : 'text-gray-300 hover:text-white'
-                            } text-sm lg:text-base`}
+                                } text-sm lg:text-base`}
                         >
                             Home
                             {/* Active indicator */}
-                            <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${
-                                isActiveLink('/') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                            }`}></div>
+                            <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${isActiveLink('/') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                                }`}></div>
                             {/* Hover glow effect */}
                             <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
                         </Link>
@@ -137,53 +95,47 @@ const Navbar = ({ isLoggedIn, user, onLogout }) => {
                     {isLoggedIn && (
                         <>
                             <li className="relative group">
-                                <Link 
-                                    to="/dashboard" 
-                                    onClick={() => setMobileMenuOpen(false)} 
-                                    className={`relative px-3 py-2 font-medium transition-all duration-300 ${
-                                        isActiveLink('/dashboard') 
-                                            ? 'text-white' 
+                                <Link
+                                    to="/dashboard"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`relative px-3 py-2 font-medium transition-all duration-300 ${isActiveLink('/dashboard')
+                                            ? 'text-white'
                                             : 'text-gray-300 hover:text-white'
-                                    } text-sm lg:text-base`}
+                                        } text-sm lg:text-base`}
                                 >
                                     My Dashboard
-                                    <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${
-                                        isActiveLink('/dashboard') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                                    }`}></div>
+                                    <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${isActiveLink('/dashboard') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                                        }`}></div>
                                     <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
                                 </Link>
                             </li>
                             <li className="relative group">
-                                <Link 
-                                    to="/timebank" 
-                                    onClick={() => setMobileMenuOpen(false)} 
-                                    className={`relative px-3 py-2 font-medium transition-all duration-300 ${
-                                        isActiveLink('/timebank') 
-                                            ? 'text-white' 
+                                <Link
+                                    to="/timebank"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`relative px-3 py-2 font-medium transition-all duration-300 ${isActiveLink('/timebank')
+                                            ? 'text-white'
                                             : 'text-gray-300 hover:text-white'
-                                    } text-sm lg:text-base`}
+                                        } text-sm lg:text-base`}
                                 >
                                     My Time Bank
-                                    <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${
-                                        isActiveLink('/timebank') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                                    }`}></div>
+                                    <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${isActiveLink('/timebank') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                                        }`}></div>
                                     <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
                                 </Link>
                             </li>
                             <li className="relative group">
-                                <Link 
-                                    to="/profile" 
-                                    onClick={() => setMobileMenuOpen(false)} 
-                                    className={`relative px-3 py-2 font-medium transition-all duration-300 ${
-                                        isActiveLink('/profile') 
-                                            ? 'text-white' 
+                                <Link
+                                    to="/profile"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`relative px-3 py-2 font-medium transition-all duration-300 ${isActiveLink('/profile')
+                                            ? 'text-white'
                                             : 'text-gray-300 hover:text-white'
-                                    } text-sm lg:text-base`}
+                                        } text-sm lg:text-base`}
                                 >
                                     My Profile
-                                    <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${
-                                        isActiveLink('/profile') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                                    }`}></div>
+                                    <div className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 transform transition-all duration-300 ${isActiveLink('/profile') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                                        }`}></div>
                                     <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
                                 </Link>
                             </li>
@@ -227,19 +179,17 @@ const Navbar = ({ isLoggedIn, user, onLogout }) => {
             </div>
 
             {/* Mobile Menu */}
-            <div className={`md:hidden absolute top-full left-0 right-0 bg-slate-900/98 backdrop-blur-xl border-b border-purple-500/20 transition-all duration-300 ${
-                mobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'
-            }`}>
+            <div className={`md:hidden absolute top-full left-0 right-0 bg-slate-900/98 backdrop-blur-xl border-b border-purple-500/20 transition-all duration-300 ${mobileMenuOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'
+                }`}>
                 <div className="px-4 py-6">
                     <ul className="space-y-3">
                         <li>
                             <Link
                                 to="/"
-                                className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-                                    isActiveLink('/') 
-                                        ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400' 
+                                className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${isActiveLink('/')
+                                        ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400'
                                         : 'text-gray-300 hover:text-white hover:bg-white/5'
-                                }`}
+                                    }`}
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 🏠 Home
@@ -264,40 +214,37 @@ const Navbar = ({ isLoggedIn, user, onLogout }) => {
                         {isLoggedIn && (
                             <>
                                 <li>
-                                    <Link 
-                                        to="/dashboard" 
-                                        onClick={() => setMobileMenuOpen(false)} 
-                                        className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-                                            isActiveLink('/dashboard') 
-                                                ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400' 
+                                    <Link
+                                        to="/dashboard"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${isActiveLink('/dashboard')
+                                                ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400'
                                                 : 'text-gray-300 hover:text-white hover:bg-white/5'
-                                        }`}
+                                            }`}
                                     >
                                         📊 My Dashboard
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link 
-                                        to="/timebank" 
-                                        onClick={() => setMobileMenuOpen(false)} 
-                                        className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-                                            isActiveLink('/timebank') 
-                                                ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400' 
+                                    <Link
+                                        to="/timebank"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${isActiveLink('/timebank')
+                                                ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400'
                                                 : 'text-gray-300 hover:text-white hover:bg-white/5'
-                                        }`}
+                                            }`}
                                     >
                                         ⏰ My Time Bank
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link 
-                                        to="/profile" 
-                                        onClick={() => setMobileMenuOpen(false)} 
-                                        className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-                                            isActiveLink('/profile') 
-                                                ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400' 
+                                    <Link
+                                        to="/profile"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className={`block px-4 py-3 rounded-xl font-medium transition-all duration-300 ${isActiveLink('/profile')
+                                                ? 'text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-l-4 border-purple-400'
                                                 : 'text-gray-300 hover:text-white hover:bg-white/5'
-                                        }`}
+                                            }`}
                                     >
                                         👤 My Profile
                                     </Link>

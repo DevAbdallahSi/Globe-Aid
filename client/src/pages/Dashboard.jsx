@@ -400,24 +400,7 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
                     )}
                 </div>
 
-                {/* Recent Activity Section */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                    <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                        <TrendingUp className="w-6 h-6 mr-3 text-green-600" />
-                        Recent Activity
-                    </h2>
-                    <div className="space-y-4">
-                        {recentActivity.map((activity, index) => (
-                            <div key={index} className="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors">
-                                <div className={`w-2 h-2 rounded-full mt-2 ${activity.type === 'chat' ? 'bg-blue-500' : activity.type === 'service' ? 'bg-green-500' : 'bg-purple-500'}`} />
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-gray-900 font-medium">{activity.message}</p>
-                                    <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                
             </div>
 
             {isModalOpen && (
