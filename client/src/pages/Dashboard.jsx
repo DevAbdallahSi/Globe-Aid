@@ -19,20 +19,16 @@ import {
 import AgentChatWidget from '../components/AgentChatWidget';
 import ChatBox from '../components/ChatBox';
 import { User } from 'lucide-react';
-
-
+import socket from '../socket'; // adjust path if needed
 
 const UserDashboard = ({ user, setUser , openChatPopup }) => {
     const [isOnline, setIsOnline] = useState(true);
-
     const [chatWith, setChatWith] = useState(null);
-
-
     const [selectedService, setSelectedService] = useState(null);
     const [serviceRequests, setServiceRequests] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
     const [requestedServices, setRequestedServices] = useState([]);
+    const [services, setServices] = useState([]);
 
     const navigate = useNavigate();
 
@@ -47,55 +43,56 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
         hoursContributed: 156
     });
 
-
-
     const [recentActivity] = useState([
         { type: "chat", message: "Helped Maria with visa questions", time: "2 hours ago" },
         { type: "service", message: "New request for German practice", time: "5 hours ago" },
         { type: "achievement", message: "Reached 150 hours milestone!", time: "1 day ago" }
     ]);
 
+    const fetchUserServices = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get('http://localhost:8000/api/services/mine', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setServices(res.data);
+        } catch (error) {
+            console.error('Failed to fetch user services:', error);
+        }
+    };
 
-    const [services, setServices] = useState([]);
+    const fetchRequestedServices = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get('http://localhost:8000/api/services/requested', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setRequestedServices(res.data);
+            console.log("req", res.data);
+        } catch (err) {
+            console.error("Failed to fetch requested services:", err);
+        }
+    };
+
+
 
     useEffect(() => {
-        const fetchUserServices = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:8000/api/services/mine', {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-                setServices(res.data);
-            } catch (error) {
-                console.error('Failed to fetch user services:', error);
-            }
+        if (!user) return;
+
+        fetchUserServices();
+        fetchRequestedServices();
+
+        const handleNewRequest = (data) => {
+            console.log("📬 New service request received via socket:", data);
+            fetchUserServices(); // Updates request count
         };
 
+        socket.on('newRequestMade', handleNewRequest);
 
-        const fetchRequestedServices = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:8000/api/services/requested', {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-                setRequestedServices(res.data);
-                console.log("req", res.data)
-            } catch (err) {
-                console.error("Failed to fetch requested services:", err);
-            }
+        return () => {
+            socket.off('newRequestMade', handleNewRequest);
         };
-
-        if (user) {
-            fetchUserServices();
-            fetchRequestedServices();
-        }
     }, [user]);
-
-
 
 
 
@@ -113,15 +110,11 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
         }
     };
 
-
-
     const handleServiceClick = async (service) => {
         try {
             const token = localStorage.getItem('token');
             const res = await axios.get(`http://localhost:8000/api/services/requests/${service._id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                headers: { Authorization: `Bearer ${token}` }
             });
             setSelectedService(service);
             setServiceRequests(res.data);
@@ -130,7 +123,6 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
             console.error('Failed to fetch requests for this service:', error);
         }
     };
-
 
     const StatCard = ({ icon: Icon, label, value, trend, color = "blue" }) => (
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 group">
@@ -165,7 +157,7 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
             </div>
             <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600">
                 {service.requests?.length > 0 ? (
-                    <span className="text-blue-600 underline cursor-pointer" >
+                    <span className="text-blue-600 underline cursor-pointer">
                         {service.requests.length} requests
                     </span>
                 ) : (
@@ -182,6 +174,7 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
     const handleOfferClick = () => {
         navigate('/timebank?tab=offer');
     };
+
     const handleApprove = async (req) => {
         try {
             const token = localStorage.getItem('token');
@@ -190,23 +183,19 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // ✅ Optionally update the request's status in-place
             setServiceRequests(prev =>
                 prev.map(r => r._id === req._id ? { ...r, status: 'accepted' } : r)
             );
 
             await refreshUserStats();
 
-            // Start chat
-            setChatWith(req.requester);
-            setIsModalOpen(false);
-
+            openChatPopup(req.requester._id, req.requester.name); // ✅ Use popup
+            setIsModalOpen(false); // Close modal
         } catch (err) {
             console.error("❌ Approve failed", err);
             alert("Failed to approve request");
         }
     };
-
 
 
     const handleDecline = async (requestId) => {
@@ -230,16 +219,13 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
             const res = await axios.get('http://localhost:8000/api/users/me', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setUser(res.data);  // this assumes you're passing setUser from parent or managing user state locally
+            // Assuming setUser is passed from parent or managed locally
+            // If not, you need to define user state and setUser, e.g., const [user, setUser] = useState(initialUser);
         } catch (err) {
             console.error("❌ Failed to refresh user stats:", err);
         }
     };
 
-
-
-
-    if (!user) return <div className="text-center mt-10 text-gray-500">Loading dashboard...</div>;
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 px-4 sm:px-6 lg:px-8 py-6 relative">
             {/* Floating Agent Chat Widget */}
@@ -285,7 +271,7 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Quick Actions */}
                 <div className="grid sm:grid-cols-2 gap-6">
-                    <button onClick={() => navigate('/deepseek')}
+                    <button onClick={() => navigate('/GloabAid')}
                         className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
                     >
                         <div className="flex items-center justify-between">
@@ -327,10 +313,9 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
                                     <Globe className="w-6 h-6 mr-3 text-blue-600" />
                                     Your TimeBank Services
                                 </h2>
-
                             </div>
                             <div className="space-y-4 overflow-y-auto pr-2" style={{ flex: 1 }}>
-                                {services.map(service => (<ServiceCard key={service._id} service={service} />))}
+                                {services.map(service => <ServiceCard key={service._id} service={service} />)}
                             </div>
                         </div>
                     </div>
@@ -344,9 +329,7 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
                                         <Clock className="w-6 h-6 mr-3 text-emerald-600" />
                                         Services You've Requested
                                     </h2>
-
                                 </div>
-
                                 <div className="space-y-4 overflow-y-auto pr-2" style={{ flex: 1 }}>
                                     {requestedServices.map(req => (
                                         <div key={req._id} className="bg-white border border-gray-200 rounded-2xl p-4 hover:shadow-lg hover:border-gray-300 transition-all duration-200 group">
@@ -366,13 +349,12 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
                                                         <span>{req.service.location}</span>
                                                     </div>
                                                 </div>
-
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ml-3
-      ${req.status === 'pending' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
+            ${req.status === 'pending' ? 'bg-amber-100 text-amber-700 border border-amber-200' :
                                                         req.status === 'accepted' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' :
                                                             'bg-red-100 text-red-700 border border-red-200'}`}>
                                                     <div className={`w-1.5 h-1.5 rounded-full mr-1.5
-        ${req.status === 'pending' ? 'bg-amber-400' :
+            ${req.status === 'pending' ? 'bg-amber-400' :
                                                             req.status === 'accepted' ? 'bg-emerald-400' : 'bg-red-400'}`}></div>
                                                     {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
                                                 </span>
@@ -436,9 +418,7 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
                         ))}
                     </div>
                 </div>
-
             </div>
-
 
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
@@ -546,19 +526,9 @@ const UserDashboard = ({ user, setUser , openChatPopup }) => {
                     </div>
                 </div>
             )}
-            {chatWith && (
-                <div className="mt-8">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                        Chat with {chatWith.name}
-                    </h2>
-                    <ChatBox userId={user._id} receiverId={chatWith._id} />
-                </div>
-            )}
 
         </div>
-
-
-    );
+    )
 };
 
 export default UserDashboard;

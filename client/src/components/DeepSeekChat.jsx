@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Plus, MessageSquare, User, Sparkles } from 'lucide-react';
+import { Send, User, Sparkles } from 'lucide-react';
 
 const DeepSeekChat = ({ user }) => {
     const [input, setInput] = useState('');
@@ -11,6 +11,7 @@ const DeepSeekChat = ({ user }) => {
     const textareaRef = useRef(null);
     const chatContainerRef = useRef(null);
     const [isUserAtBottom, setIsUserAtBottom] = useState(true);
+    const [welcomeInitialized, setWelcomeInitialized] = useState(false);
 
     const scrollToBottom = (force = false) => {
         if (force || isUserAtBottom) {
@@ -28,35 +29,36 @@ const DeepSeekChat = ({ user }) => {
     };
 
     useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
+        // Disable automatic scrolling on new messages
+        // Users can manually scroll to see new content
+    }, [messages, welcomeInitialized, isUserAtBottom]);
 
     useEffect(() => {
-        if (isStreaming && isUserAtBottom) {
-            const timeout = setTimeout(() => {
-                scrollToBottom();
-            }, 100);
-            return () => clearTimeout(timeout);
-        }
-    }, [isStreaming]);
+        // Disable automatic scrolling during streaming
+        // Users can manually scroll to follow the conversation
+    }, [streamingMessage]);
 
     useEffect(() => {
-        if (messages.length === 0 && user?.name) {
+        // Initialize welcome message without scrolling
+        if (!welcomeInitialized && user?.name) {
             const welcome = {
                 id: Date.now().toString(),
-                content: `Hello ${user.name}! I'm your GlobeAid AI assistant. How can I help you plan your next adventure today?`,
+                content: `Hello ${user.name}! I'm your GlobeAid AI assistant. How can I help you today?`,
                 isUser: false,
                 timestamp: new Date(),
             };
             setMessages([welcome]);
+            setWelcomeInitialized(true);
+            // Ensure user is considered at bottom after welcome message
+            setIsUserAtBottom(true);
         }
-    }, [user]);
+    }, [user, welcomeInitialized]);
 
     const adjustTextareaHeight = () => {
         const textarea = textareaRef.current;
         if (textarea) {
             textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
         }
     };
 
@@ -82,6 +84,7 @@ const DeepSeekChat = ({ user }) => {
                 };
                 setMessages(prev => [...prev, aiMessage]);
                 setStreamingMessage('');
+                // Removed automatic scrolling - user can scroll manually
             }
         }, 50);
     };
@@ -102,8 +105,10 @@ const DeepSeekChat = ({ user }) => {
         setInput('');
         setLoading(true);
 
+        // Removed automatic scrolling - user can scroll manually to see their message
+
         if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = '40px';
         }
 
         try {
@@ -157,143 +162,119 @@ const DeepSeekChat = ({ user }) => {
         adjustTextareaHeight();
     };
 
-    const newChat = () => {
-        setMessages([]);
-        setStreamingMessage('');
-        setIsStreaming(false);
-        setInput('');
-    };
-
     return (
-        <div className="flex h-screen bg-gray-800">
-            {/* Sidebar */}
-            <div className="w-64 bg-gray-900 text-white flex flex-col border-r border-gray-700">
-                <div className="p-4">
-                    <button onClick={newChat} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 transition-colors">
-                        <Plus className="w-4 h-4" />
-                        <span className="text-sm">New chat</span>
-                    </button>
-                </div>
-                <div className="flex-1 overflow-y-auto px-2">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-700 text-sm">
-                            <MessageSquare className="w-4 h-4" />
-                            <span className="truncate">GlobeAid AI Chat</span>
+        <div className="min-h-screen bg-gray-800 flex items-center justify-center p-4">
+            {/* Chat Box Container */}
+            <div className="w-full max-w-3xl h-[600px] bg-gray-900 rounded-lg shadow-2xl border border-gray-700 flex flex-col overflow-hidden">
+                
+                {/* Header */}
+                <div className="bg-gray-800 px-4 py-3 border-b border-gray-700">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                            <Sparkles className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                            <h3 className="text-white font-medium">GlobeAid AI</h3>
+                            <p className="text-gray-400 text-sm">Travel Assistant</p>
                         </div>
                     </div>
                 </div>
+
+                {/* Messages Area */}
+                <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4" onScroll={handleScroll}>
+                    {messages.length === 0 && !isStreaming && (
+                        <div className="flex items-center justify-center h-full">
+                            <div className="text-center">
+                                <Sparkles className="w-10 h-10 text-gray-500 mx-auto mb-3" />
+                                <h3 className="text-gray-200 mb-2">How can I help you today?</h3>
+                                <p className="text-gray-400 text-sm">Ask me about travel, destinations, or planning.</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {messages.map((message) => (
+                        <div key={message.id} className="mb-4">
+                            <div className={`flex gap-3 ${message.isUser ? 'justify-end' : 'justify-start'}`}>
+                                {!message.isUser && (
+                                    <div className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <Sparkles className="w-4 h-4 text-white" />
+                                    </div>
+                                )}
+                                <div className={`max-w-xs lg:max-w-md px-3 py-2 rounded-lg ${
+                                    message.isUser 
+                                        ? 'bg-blue-600 text-white' 
+                                        : 'bg-gray-700 text-gray-100'
+                                }`}>
+                                    <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+                                </div>
+                                {message.isUser && (
+                                    <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <User className="w-4 h-4 text-white" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+
+                    {isStreaming && (
+                        <div className="mb-4">
+                            <div className="flex gap-3 justify-start">
+                                <div className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <Sparkles className="w-4 h-4 text-white" />
+                                </div>
+                                <div className="max-w-xs lg:max-w-md px-3 py-2 rounded-lg bg-gray-700 text-gray-100">
+                                    <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                                        {streamingMessage}<span className="inline-block w-1 h-4 bg-gray-100 ml-1 animate-pulse"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {loading && !isStreaming && (
+                        <div className="mb-4">
+                            <div className="flex gap-3 justify-start">
+                                <div className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <Sparkles className="w-4 h-4 text-white" />
+                                </div>
+                                <div className="px-3 py-2 rounded-lg bg-gray-700">
+                                    <div className="flex items-center gap-1">
+                                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce"></div>
+                                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div ref={messagesEndRef} />
+                </div>
+
+                {/* Input Area */}
                 <div className="p-4 border-t border-gray-700">
-                    <div className="flex items-center gap-3 px-3 py-2">
-                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                            <User className="w-4 h-4 text-white" />
-                        </div>
-                        <span className="text-sm truncate">{user?.name || 'User'}</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Chat Area */}
-            <div className="flex-1 flex flex-col bg-gray-800">
-                <div ref={chatContainerRef} className="flex-1 overflow-y-auto" onScroll={handleScroll}>
-                    <div className="max-w-3xl mx-auto">
-                        {messages.length === 0 && !isStreaming && (
-                            <div className="flex items-center justify-center h-full">
-                                <div className="text-center py-12">
-                                    <Sparkles className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                                    <h3 className="text-xl font-medium text-gray-200 mb-2">How can I help you today?</h3>
-                                    <p className="text-gray-400">Ask me anything about travel, destinations, or planning your next adventure.</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {messages.map((message) => (
-                            <div key={message.id} className={`py-6 px-4 ${message.isUser ? 'bg-gray-800' : 'bg-gray-750'}`}>
-                                <div className="max-w-3xl mx-auto flex gap-4">
-                                    <div className="flex-shrink-0">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${message.isUser ? 'bg-blue-600' : 'bg-green-500'}`}>
-                                            {message.isUser ? <User className="w-4 h-4 text-white" /> : <Sparkles className="w-4 h-4 text-white" />}
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="prose prose-sm max-w-none">
-                                            <p className="text-gray-100 leading-relaxed whitespace-pre-wrap m-0">{message.content}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-
-                        {isStreaming && (
-                            <div className="py-6 px-4 bg-gray-750">
-                                <div className="max-w-3xl mx-auto flex gap-4">
-                                    <div className="flex-shrink-0">
-                                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                                            <Sparkles className="w-4 h-4 text-white" />
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="prose prose-sm max-w-none">
-                                            <p className="text-gray-100 leading-relaxed whitespace-pre-wrap m-0">
-                                                {streamingMessage}<span className="inline-block w-2 h-5 bg-gray-100 ml-1 animate-pulse"></span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {loading && !isStreaming && (
-                            <div className="py-6 px-4 bg-gray-750">
-                                <div className="max-w-3xl mx-auto flex gap-4">
-                                    <div className="flex-shrink-0">
-                                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                                            <Sparkles className="w-4 h-4 text-white" />
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"></div>
-                                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                            <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <div ref={messagesEndRef} />
+                    <div className="flex gap-2">
+                        <textarea
+                            ref={textareaRef}
+                            value={input}
+                            onChange={handleInputChange}
+                            onKeyDown={handleKeyDown}
+                            placeholder="Type your message..."
+                            disabled={loading || isStreaming}
+                            className="flex-1 resize-none bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-100 placeholder-gray-400 focus:outline-none focus:border-gray-500 text-sm"
+                            rows={1}
+                            style={{ minHeight: '40px', maxHeight: '100px' }}
+                        />
+                        <button
+                            onClick={handleSend}
+                            disabled={!input.trim() || loading || isStreaming}
+                            className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <Send className="w-4 h-4" />
+                        </button>
                     </div>
                 </div>
 
-                <div className="border-t border-gray-700 bg-gray-800 p-4">
-                    <div className="max-w-3xl mx-auto">
-                        <form onSubmit={handleSend} className="relative">
-                            <div className="flex items-end gap-3 bg-gray-700 border border-gray-600 rounded-xl shadow-sm focus-within:border-gray-500 transition-colors">
-                                <textarea
-                                    ref={textareaRef}
-                                    value={input}
-                                    onChange={handleInputChange}
-                                    onKeyDown={handleKeyDown}
-                                    placeholder="Message GlobeAid AI..."
-                                    disabled={loading || isStreaming}
-                                    className="flex-1 resize-none border-0 bg-transparent px-4 py-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-0 max-h-48"
-                                    rows={1}
-                                    style={{ minHeight: '44px' }}
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={!input.trim() || loading || isStreaming}
-                                    className="m-2 p-2 rounded-lg bg-gray-600 text-white hover:bg-gray-500 disabled:bg-gray-500 disabled:cursor-not-allowed transition-colors"
-                                >
-                                    <Send className="w-4 h-4" />
-                                </button>
-                            </div>
-                        </form>
-                        <p className="text-xs text-gray-400 mt-2 text-center">
-                            GlobeAid AI can make mistakes. Consider checking important information.
-                        </p>
-                    </div>
-                </div>
             </div>
         </div>
     );

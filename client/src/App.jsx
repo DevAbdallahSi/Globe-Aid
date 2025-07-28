@@ -140,7 +140,7 @@ const App = () => {
                     />
                     <Route path="/timebank" element={<TimeBank />} />
                     <Route
-                        path="/deepseek"
+                        path="/GloabAid"
                         element={
                             isLoggedIn && user ? (
                                 <DeepSeekChat user={user} />
