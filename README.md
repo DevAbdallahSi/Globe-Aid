@@ -1,8 +1,7 @@
 https://claude.ai/public/artifacts/4a62aa58-3c09-427d-b883-d045f3d1bcfe
 # 🌍 Globe Aid
 
-Globe Aid is a **MERN-based web platform** that provides cultural and emergency support for travelers around the world.  
-It includes a **time bank system**, real-time AI assistance, and multilingual support — making it a smart travel companion for both everyday guidance and urgent situations.
+**Globe Aid** is a MERN-stack platform that provides cultural and emergency support for international travelers. With AI-powered agents and a community-based time bank, it connects users to real-time assistance tailored to their local context.
 
 ---
 
@@ -11,7 +10,7 @@ It includes a **time bank system**, real-time AI assistance, and multilingual su
 - 🌐 **Cultural Support** – Localized cultural tips and behavior guidelines.
 - 🕒 **Time Bank System** – Users can exchange support hours for help from the community.
 - 🧠 **AI Agent Integration** – Voice and text-based AI assistant for real-time help.
-- 📍 **Live Tracking** – Real-time user location (via Socket.IO) for emergencies.
+- 💬 **Real-Time Chat** – Instant messaging with agents and community helpers via Socket.IO.
 - 🌐 **Multilingual Interface** – Language selection to accommodate diverse users.
 - ☁️ **AWS Deployment** – Fully hosted and accessible from anywhere.
 
@@ -21,35 +20,44 @@ It includes a **time bank system**, real-time AI assistance, and multilingual su
 
 **Frontend:**
 - React.js
-- Tailwind CSS
+- TailwindCSS
 - Socket.IO Client
+- Axios
 
 **Backend:**
 - Node.js
 - Express.js
-- MongoDB + Mongoose
+- MongoDB
 - Socket.IO Server
-- OpenAI / DeepSeek API (for AI chat)
-- REST APIs
+- OpenRouter & DeepSeek (AI APIs)
 
-**Other:**
-- JWT Authentication
-- Cloud Deployment: AWS EC2
-- Git & GitHub for version control
+**Other Tools:**
+- JWT (Authentication)
+- Postman (API testing)
+- AWS EC2 (Deployment)
+- MongoDB Atlas (Cloud DB)
 
 ---
 
 ## 📸 Screenshots
 
-> _(Add screenshots of your main pages here)_  
-> Example: Home page, AI chat interface, Time Bank dashboard, Emergency view, etc.
 
 ---
 
-## 📦 Installation
+## ⚙️ Installation
 
-### 1. Clone the repo
+bash
+# Clone the repository
+git clone https://github.com/YourUsername/globe-aid.git
+cd globe-aid
 
-```bash
-git clone https://github.com/DevAbdallahSi/GlobeAid.git
-cd GlobeAid
+# Backend setup
+cd server
+npm install
+npm run dev
+
+# Frontend setup
+cd client
+npm install
+npm start
+
