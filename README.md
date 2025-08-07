@@ -2,6 +2,10 @@ https://claude.ai/public/artifacts/4a62aa58-3c09-427d-b883-d045f3d1bcfe
 # 🌍 Globe Aid
 
 **Globe Aid** is a MERN-stack platform that provides cultural and emergency support for international travelers. With AI-powered agents and a community-based time bank, it connects users to real-time assistance tailored to their local context.
+---
+## 🎥 Demo
+
+![GlobeAid Demo](https://github.com/DevAbdallahSi/Globe-Aid/blob/main/client/src/assets/GlobeAid%20-%20Your%20Cultural%20Bridge%20to%20Belonging%20Anywhere%20-%20Google%20Chrome%202025-08-07%2011-15-29%20(1).gif?raw=true)
 
 ---
 
@@ -39,12 +43,6 @@ https://claude.ai/public/artifacts/4a62aa58-3c09-427d-b883-d045f3d1bcfe
 
 ---
 
-## 🎥 Demo
-
-![Globe Aid Demo](client/src/assets/GlobeAid - Your Cultural Bridge to Belonging Anywhere - Google Chrome 2025-08-07 11-15-29 (1).gif)
-
-
----
 
 ## ⚙️ Installation
 
